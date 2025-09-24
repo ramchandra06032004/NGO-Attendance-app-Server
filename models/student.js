@@ -14,8 +14,21 @@ const studentSchema = new mongoose.Schema(
     },
     attendedEvents: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Event", // reference to Event model
+        eventId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Event",
+          required: true,
+        },
+        attendanceMarkedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        markedBy: {
+          ngoId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "NGO",
+          }
+        },
       },
     ],
     prn: {
