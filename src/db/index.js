@@ -2,13 +2,21 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
-    const connectionInstance = await mongoose.connect(
-      `${process.env.MONGODB_URI}`
-    );
+    await mongoose.connect(process.env.MONGODB_URI);
 
-    console.log("\nMongoDB connected ! DB host : ", connectionInstance.connection.host);
+    mongoose.connection.on("connected", () => {
+      console.log("✅ MongoDB connected successfully");
+    });
+
+    mongoose.connection.on("error", (err) => {
+      console.error("❌ MongoDB connection error: ", err);
+    });
+
+    mongoose.connection.on("disconnected", () => {
+      console.warn("⚠️ MongoDB disconnected");
+    });
   } catch (error) {
-    console.log("MongoDB Connection error : ", error);
+    console.error("MongoDB initial connection error: ", error);
     process.exit(1);
   }
 };

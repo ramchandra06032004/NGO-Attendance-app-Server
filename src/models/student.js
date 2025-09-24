@@ -31,6 +31,22 @@ const studentSchema = new mongoose.Schema(
         },
       },
     ],
+    classId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class",
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      default: "defaultPassword123", // Default password
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
     prn: {
       type: String,
       unique: true,
