@@ -1,0 +1,17 @@
+1) move password hashing logic from models folder to signIn/createUser controller
+2) move compare password logic from models folder to userSignIn function
+3) move unique email validation to createUser controller 
+4) seprate the all 3 functions in 3 different files signIn signOut and createUser
+    use like 
+    const signin=async()=>{
+        your logic
+    }
+    export default signin
+
+    and then import it into route.js files
+
+
+5) userModel will be our admin model so rename it
+6)impleament schema as per image i send and connect them using foregin key ref our faculty project where we connect class with departmemts or user with departments
+7)if you are writing function which you think can use in more then 1 files then make 1 common folder as Helper and add file for every function and write inside it
+8)add token as same as added in user.js file "tokens: [{ type: Object }],"
