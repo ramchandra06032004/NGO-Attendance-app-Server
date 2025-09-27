@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import healthCheck from "./utils/healthCheck/healthcheck";
 
 const app = express();
 
@@ -51,14 +52,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Health check route for React Native app
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "NGO Attendance Server is running!",
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development",
-  });
-});
+app.get("/api/health", healthCheck);
 
 // API routes (will be imported later)
 // app.use('/api/v1/users', userRoutes);
