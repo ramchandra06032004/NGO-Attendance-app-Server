@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import hashPasswordHook from "../utils/hashPassword.js";
+import comparePassword from "../utils/comparePassword.js";
+import generateAccessToken from "../utils/accessTokenGen.js";
+import generateRefreshToken from "../utils/refreshTokenGen.js";
 
 const ngoSchema = new mongoose.Schema(
   {
@@ -40,6 +44,10 @@ const ngoSchema = new mongoose.Schema(
         ref: "Event",
       },
     ],
+    role: {
+      type: String,
+      default: "ngo",
+    },
     tokens: [
       {
         token: {
@@ -49,7 +57,7 @@ const ngoSchema = new mongoose.Schema(
         createdAt: {
           type: Date,
           default: Date.now,
-          expires: "30d", // auto-expire after 30 days
+          expires: "10d", // auto-expire after 10 days
         },
       },
     ],
@@ -63,4 +71,12 @@ const ngoSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("NGO", ngoSchema);
+// Add password hashing middleware
+ngoSchema.pre("save", hashPasswordHook);
+
+// Add methods
+ngoSchema.methods.comparePassword = comparePassword;
+ngoSchema.methods.generateAccessToken = generateAccessToken;
+ngoSchema.methods.generateRefreshToken = generateRefreshToken;
+
+export const Ngo = mongoose.model("Ngo", ngoSchema);

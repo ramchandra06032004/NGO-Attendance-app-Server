@@ -1,4 +1,4 @@
-//Check it once that is it proper 
+//Check it once that is it proper
 
 import express from "express";
 import cors from "cors";
@@ -54,12 +54,16 @@ if (process.env.NODE_ENV !== "production") {
 // Health check route for React Native app
 app.get("/api/health", healthCheck);
 
-// API routes (will be imported later)
-// app.use('/api/v1/users', userRoutes);
-// app.use('/api/v1/colleges', collegeRoutes);
-// app.use('/api/v1/ngos', ngoRoutes);
-// app.use('/api/v1/students', studentRoutes);
-// app.use('/api/v1/events', eventRoutes);
+// API routes
+import adminRoutes from "./routes/admin.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import collegeRoutes from "./routes/college.routes.js";
+import ngoRoutes from "./routes/ngo.routes.js";
+
+app.use("/api/v1/auth", authRoutes); // Universal auth routes (login, logout, register)
+app.use("/api/v1/admin", adminRoutes); // Admin-specific routes
+app.use("/api/v1/college", collegeRoutes); // College-specific routes
+app.use("/api/v1/ngo", ngoRoutes); // NGO-specific routes
 
 // Global error handling middleware for React Native API
 app.use((err, req, res, next) => {
@@ -74,15 +78,19 @@ app.use((err, req, res, next) => {
 });
 
 // Handle 404 for API routes
-app.use("/api/*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API endpoint not found",
-  });
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api/")) {
+    res.status(404).json({
+      success: false,
+      message: "API endpoint not found",
+    });
+  } else {
+    next();
+  }
 });
 
 // Catch all handler for non-API routes
-app.use("*", (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message:
@@ -90,4 +98,4 @@ app.use("*", (req, res) => {
   });
 });
 
-export { app };
+export default app;
