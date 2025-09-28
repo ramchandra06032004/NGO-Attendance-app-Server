@@ -9,7 +9,6 @@ export const addClass = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Class name must be a non-empty string");
   }
 
-  className = className.trim();
   const classExists = await Class.findOne({ className });
   if (classExists)
     throw new ApiError(400, "Class with this name already exists");
