@@ -11,7 +11,7 @@ export const addClass = asyncHandler(async (req, res) => {
 
   const classExists = await Class.findOne({ className });
   if (classExists)
-    throw new ApiError(400, "Class with this name already exists");
+    throw new ApiError(409, "Class with this name already exists");
 
   const newClass = await Class.create({ className });
   return res
