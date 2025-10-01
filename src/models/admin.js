@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import hashPasswordHook from "../utils/hashPassword.js";
-import comparePassword from "../utils/comparePassword.js";
+import hashPasswordHook from "../utils/loginUtils/hashPassword.js";
+import comparePassword from "../utils/loginUtils/comparePassword.js";
 // import isThisEmailInUse from "../utils/isEmailInUse.js";
 import jwt from "jsonwebtoken";
-import generateAccessToken from "../utils/accessTokenGen.js";
-import generateRefreshToken from "../utils/refreshTokenGen.js";
+import generateAccessToken from "../utils/loginUtils/accessTokenGen.js";
+import generateRefreshToken from "../utils/loginUtils/refreshTokenGen.js";
 
 const adminSchema = new mongoose.Schema({
   username: {

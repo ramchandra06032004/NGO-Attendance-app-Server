@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import hashPasswordHook from "../utils/hashPassword.js";
-import comparePassword from "../utils/comparePassword.js";
-import generateAccessToken from "../utils/accessTokenGen.js";
-import generateRefreshToken from "../utils/refreshTokenGen.js";
+import hashPasswordHook from "../utils/loginUtils/hashPassword.js";
+import comparePassword from "../utils/loginUtils/comparePassword.js";
+import generateAccessToken from "../utils/loginUtils/accessTokenGen.js";
+import generateRefreshToken from "../utils/loginUtils/refreshTokenGen.js";
 
 const ngoSchema = new mongoose.Schema(
   {
