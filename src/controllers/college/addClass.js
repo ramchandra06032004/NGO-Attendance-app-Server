@@ -5,11 +5,11 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export default asyncHandler(async (req, res) => {
-  const { collegeId } = req.params;
+  if (req.user.userType !== "college") {
+    throw new ApiError(403, "Access denied: Only colleges can add classes");
+  }
 
-  // college existence check
-  const collegeExists = await College.findById(collegeId);
-  if (!collegeExists) throw new ApiError(404, "College not found");
+  const collegeUser = req.user;
 
   let { className } = req.body;
 
@@ -21,7 +21,7 @@ export default asyncHandler(async (req, res) => {
 
   // check for duplicate className within this college only
   const classInCollege = await Class.findOne({
-    _id: { $in: collegeExists.classes },
+    _id: { $in: collegeUser.classes },
     className: className,
   });
 
@@ -36,7 +36,7 @@ export default asyncHandler(async (req, res) => {
   const newClass = await Class.create({ className });
 
   // add class to college's classes array
-  await College.findByIdAndUpdate(collegeId, {
+  await College.findByIdAndUpdate(collegeUser._id, {
     $push: { classes: newClass._id },
   });
 

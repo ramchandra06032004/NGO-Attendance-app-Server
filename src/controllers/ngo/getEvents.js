@@ -5,13 +5,17 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export default asyncHandler(async (req, res) => {
-  const { ngoId } = req.params;
-  // NGO existence check
-  const ngoExists = await Ngo.findById(ngoId);
-  if (!ngoExists) throw new ApiError(404, "NGO not found");
+  if (req.user.userType !== "ngo") {
+    throw new ApiError(
+      403,
+      "Access denied: Only NGOs can access this resource"
+    );
+  }
+
+  const ngoUser = req.user;
 
   // fetch events
-  const events = await Event.find({ _id: { $in: ngoExists.eventsId } });
+  const events = await Event.find({ _id: { $in: ngoUser.eventsId } });
 
   res
     .status(200)

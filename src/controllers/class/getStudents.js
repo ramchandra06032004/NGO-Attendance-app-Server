@@ -6,14 +6,18 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export default asyncHandler(async (req, res) => {
-  const { collegeId, classId } = req.params;
+  if (req.user.userType !== "college") {
+    throw new ApiError(
+      403,
+      "Access denied: Only colleges can access this resource"
+    );
+  }
 
-  // college existence check
-  const collegeExists = await College.findById(collegeId);
-  if (!collegeExists) throw new ApiError(404, "College not found");
+  const collegeUser = req.user;
 
+  const { classId } = req.params;
   // class belongs to college check
-  if (!collegeExists.classes.includes(classId)) {
+  if (!collegeUser.classes.includes(classId)) {
     throw new ApiError(403, "Class does not belong to this college");
   }
 

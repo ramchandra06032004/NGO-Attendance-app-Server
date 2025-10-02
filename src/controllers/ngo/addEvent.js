@@ -6,10 +6,11 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export default asyncHandler(async (req, res) => {
-  const { ngoId } = req.params;
-  // NGO existence check
-  const ngoExists = await Ngo.findById(ngoId);
-  if (!ngoExists) throw new ApiError(404, "NGO not found");
+  if (req.user.userType !== "ngo") {
+    throw new ApiError(403, "Access denied: Only NGOs can add events");
+  }
+
+  const ngoUser = req.user;
 
   const { location, aim, description, images, eventDate, collegeName } =
     req.body;
@@ -56,7 +57,9 @@ export default asyncHandler(async (req, res) => {
   });
 
   // add event id to NGO's events array
-  await Ngo.findByIdAndUpdate(ngoId, { $push: { eventsId: newEvent._id } });
+  await Ngo.findByIdAndUpdate(ngoUser._id, {
+    $push: { eventsId: newEvent._id },
+  });
 
   res
     .status(201)

@@ -15,24 +15,28 @@ const validateStringField = (field, fieldName, index) => {
 };
 
 export default asyncHandler(async (req, res) => {
-  const { collegeId, classId } = req.params;
+  if (req.user.userType !== "college") {
+    throw new ApiError(
+      403,
+      "Access denied: Only colleges can add students to a class"
+    );
+  }
 
-  // college existence check
-  const collegeExists = await College.findById(collegeId);
-  if (!collegeExists) throw new ApiError(404, "College not found");
+  const collegeUser = req.user;
 
+  const { classId } = req.params;
   // class existence check
   const classExists = await Class.findById(classId);
   if (!classExists) throw new ApiError(404, "Class not found");
 
   // class belongs to college check
-  if (!collegeExists.classes.includes(classId)) {
+  if (!collegeUser.classes.includes(classId)) {
     throw new ApiError(403, "Class does not belong to this college");
   }
 
   // get all student IDs in this college (optimized)
   const allStudentIdsInCollege = await Class.aggregate([
-    { $match: { _id: { $in: collegeExists.classes } } },
+    { $match: { _id: { $in: collegeUser.classes } } },
     { $unwind: "$students" },
     { $group: { _id: null, studentIds: { $push: "$students" } } },
   ]);
