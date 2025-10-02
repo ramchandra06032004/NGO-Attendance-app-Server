@@ -1,7 +1,7 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { Admin } from "../../models/admin.js";
-import ApiResponse from "../../utils/ApiResponse.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
 
 const registerAdmin = asyncHandler(async (req, res) => {
   if (req.user == undefined || req.user.userType !== "admin") {

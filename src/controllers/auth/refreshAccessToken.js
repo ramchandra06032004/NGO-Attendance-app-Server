@@ -1,6 +1,6 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
-import ApiResponse from "../../utils/ApiResponse.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
 // Generic Refresh Token Function
@@ -28,7 +28,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     // Validate refresh token based on user type
     let isValidToken = false;
-    if (userType.toLowerCase() === "admin" || userType.toLowerCase() === "college") {
+    if (
+      userType.toLowerCase() === "admin" ||
+      userType.toLowerCase() === "college"
+    ) {
       isValidToken = incomingRefreshToken === user.refreshToken;
     } else {
       // For NGO, check in tokens array

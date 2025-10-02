@@ -1,5 +1,5 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import ApiResponse from "../../utils/ApiResponse.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
 import getModelByUserType from "./getModelByUserType.js";
 // Generic Logout Function
 const logout = asyncHandler(async (req, res) => {

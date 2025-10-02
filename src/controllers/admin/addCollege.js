@@ -1,7 +1,7 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { College } from "../../models/college.js";
-import ApiResponse from "../../utils/ApiResponse.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
 
 const addCollege = asyncHandler(async (req, res) => {
   try {
