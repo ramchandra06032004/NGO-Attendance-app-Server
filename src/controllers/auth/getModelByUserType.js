@@ -1,4 +1,6 @@
-// Model mapping system
+import { Admin } from "../../models/admin.js";
+import { College } from "../../models/college.js";
+import { Ngo } from "../../models/ngo.js";
 const getModelByUserType = (userType) => {
   switch (userType.toLowerCase()) {
     case "admin":
