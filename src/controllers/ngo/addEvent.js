@@ -1,14 +1,14 @@
-import NGO from "../models/ngo.js";
-import Event from "../models/events.js";
-import College from "../models/college.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { Ngo } from "../../models/ngo.js";
+import { Event } from "../../models/events.js";
+import { College } from "../../models/college.js";
+import { ApiError } from "../../utils/ApiError.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export default asyncHandler(async (req, res) => {
   const { ngoId } = req.params;
   // NGO existence check
-  const ngoExists = await NGO.findById(ngoId);
+  const ngoExists = await Ngo.findById(ngoId);
   if (!ngoExists) throw new ApiError(404, "NGO not found");
 
   const { location, aim, description, images, eventDate, collegeName } =
@@ -56,7 +56,7 @@ export default asyncHandler(async (req, res) => {
   });
 
   // add event id to NGO's events array
-  await NGO.findByIdAndUpdate(ngoId, { $push: { events: newEvent._id } });
+  await Ngo.findByIdAndUpdate(ngoId, { $push: { eventsId: newEvent._id } });
 
   res
     .status(201)

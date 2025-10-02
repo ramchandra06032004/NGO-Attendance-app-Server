@@ -1,9 +1,9 @@
-import Class from "../models/class.js";
-import College from "../models/college.js";
-import Student from "../models/student.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { Class } from "../../models/class.js";
+import { College } from "../../models/college.js";
+import { Student } from "../../models/student.js";
+import { ApiError } from "../../utils/ApiError.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 
 const validateStringField = (field, fieldName, index) => {
   if (!field || typeof field !== "string" || !field.trim()) {
@@ -87,11 +87,9 @@ export default asyncHandler(async (req, res) => {
 
   // update class with new student IDs
   const studentIds = createdStudents.map((s) => s._id);
-  await Class.findByIdAndUpdate(
-    classId,
-    { $push: { students: { $each: studentIds } } },
-    { new: true }
-  );
+  await Class.findByIdAndUpdate(classId, {
+    $push: { students: { $each: studentIds } },
+  });
 
   res
     .status(201)
