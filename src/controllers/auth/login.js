@@ -60,3 +60,5 @@ const login = asyncHandler(async (req, res) => {
       )
     );
 });
+
+export default login;

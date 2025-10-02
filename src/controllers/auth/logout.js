@@ -50,3 +50,5 @@ const logout = asyncHandler(async (req, res) => {
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, `${userType} logged out successfully`));
 });
+
+export default logout;
