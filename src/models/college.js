@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import hashPasswordHook from "../utils/loginUtils/hashPassword.js";
+import comparePassword from "../utils/loginUtils/comparePassword.js";
+import generateAccessToken from "../utils/loginUtils/accessTokenGen.js";
+import generateRefreshToken from "../utils/loginUtils/refreshTokenGen.js";
 
 const collegeSchema = new mongoose.Schema(
   {
@@ -29,21 +33,23 @@ const collegeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class", // Reference to Class model
     },
-    tokens: [
-      {
-        token: {
-          type: String,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-          expires: "30d", // auto-expire after 30 days
-        },
-      },
-    ],
+    role: {
+      type: String,
+      default: "college",
+    },
+    refreshToken: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("College", collegeSchema);
+// Add password hashing middleware
+collegeSchema.pre("save", hashPasswordHook);
+
+// Add methods
+collegeSchema.methods.comparePassword = comparePassword;
+collegeSchema.methods.generateAccessToken = generateAccessToken;
+collegeSchema.methods.generateRefreshToken = generateRefreshToken;
+
+export const College = mongoose.model("College", collegeSchema);
