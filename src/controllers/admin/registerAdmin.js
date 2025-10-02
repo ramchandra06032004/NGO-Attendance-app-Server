@@ -1,38 +1,30 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { Admin } from "../models/admin.js";
-import ApiResponse from "../utils/ApiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import { ApiError } from "../../utils/ApiError.js";
+import { Admin } from "../../models/admin.js";
+import ApiResponse from "../../utils/ApiResponse.js";
 
 const registerAdmin = asyncHandler(async (req, res) => {
-  try {
-    if (req.user.userType !== "admin") {
-      throw new ApiError(403, "Only admin users can register new admins");
-    }
-    const { username, email, password } = req.body;
-
-    if ([username, email, password].some((field) => field.trim() === "")) {
-      throw new ApiError(400, "All fields are required");
-    }
-
-    const existingUser = await Admin.findOne({
-      $or: [{ email }, { username }],
-    });
-
-    if (existingUser) {
-      throw new ApiError(
-        409,
-        "User with this email or username already exists"
-      );
-    }
-
-    const newUser = await Admin.create({ username, email, password });
-    return res
-      .status(201)
-      .json(new ApiResponse(201, newUser, "Admin registered successfully"));
-  } catch (error) {
-    console.error("Error registering admin:", error);
-    throw new ApiError(500, "Internal Server Error");
+  if (req.user == undefined || req.user.userType !== "admin") {
+    throw new ApiError(403, "Only admin users can register new admins");
   }
+  const { username, email, password } = req.body;
+
+  if ([username, email, password].some((field) => field.trim() === "")) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const existingUser = await Admin.findOne({
+    $or: [{ email }, { username }],
+  });
+
+  if (existingUser) {
+    throw new ApiError(409, "User with this email or username already exists");
+  }
+
+  const newUser = await Admin.create({ username, email, password });
+  return res
+    .status(201)
+    .json(new ApiResponse(201, newUser, "Admin registered successfully"));
 });
 
 export default registerAdmin;
