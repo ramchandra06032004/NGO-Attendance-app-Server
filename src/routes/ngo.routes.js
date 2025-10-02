@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { addEvent, getEvents } from "../controllers/ngo";
 
 const router = Router();
 
@@ -7,6 +8,7 @@ const router = Router();
 // All routes here require NGO authentication
 
 // TODO: Add NGO-specific routes like:
+router.route("/events").get(verifyJWT, getEvents).post(verifyJWT, addEvent);
 // router.route("/profile").get(verifyJWT, getNgoProfile);
 // router.route("/profile").put(verifyJWT, updateNgoProfile);
 // router.route("/events").get(verifyJWT, getNgoEvents);

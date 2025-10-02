@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { addClass, getClasses } from "../controllers/college";
+import { addStudents, getStudents } from "../controllers/class";
 
 const router = Router();
 
@@ -7,6 +9,17 @@ const router = Router();
 // All routes here require college authentication
 
 // TODO: Add college-specific routes like:
+
+// Class management
+router.route("/classes").get(verifyJWT, getClasses).post(verifyJWT, addClass);
+
+// Students management
+router
+  .route("/classes/:classId/students")
+  .get(verifyJWT, getStudents)
+  .post(verifyJWT, addStudents);
+// Note: classId param is required in the above two routes
+
 // router.route("/profile").get(verifyJWT, getCollegeProfile);
 // router.route("/profile").put(verifyJWT, updateCollegeProfile);
 // router.route("/students").get(verifyJWT, getStudents);
