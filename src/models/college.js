@@ -29,10 +29,12 @@ const collegeSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    classId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Class", // Reference to Class model
-    },
+    classes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class", // Reference to Class model
+      },
+    ],
     role: {
       type: String,
       default: "college",
