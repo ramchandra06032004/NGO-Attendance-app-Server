@@ -34,15 +34,6 @@ export const addStudents = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Class does not belong to this college");
   }
 
-  // get all student IDs in this college (optimized)
-  const allStudentIdsInCollege = await Class.aggregate([
-    { $match: { _id: { $in: collegeUser.classes } } },
-    { $unwind: "$students" },
-    { $group: { _id: null, studentIds: { $push: "$students" } } },
-  ]);
-
-  const studentIdsArray = allStudentIdsInCollege[0]?.studentIds || [];
-
   const { students } = req.body;
 
   // validate students array
@@ -68,7 +59,16 @@ export const addStudents = asyncHandler(async (req, res) => {
     validateStringField(student.prn, "PRN", i);
   }
 
-  // fail-fast check for duplicate PRNs in college (optimized - stops at first match)
+  // get all student IDs in this college
+  const allStudentIdsInCollege = await Class.aggregate([
+    { $match: { _id: { $in: collegeUser.classes } } },
+    { $unwind: "$students" },
+    { $group: { _id: null, studentIds: { $push: "$students" } } },
+  ]);
+
+  const studentIdsArray = allStudentIdsInCollege[0]?.studentIds || [];
+
+  // fail-fast check for duplicate PRNs in college
   const existingPRN = await Student.findOne({
     _id: { $in: studentIdsArray },
     prn: { $in: students.map((s) => s.prn) },
