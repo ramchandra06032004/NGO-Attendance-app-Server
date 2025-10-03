@@ -5,8 +5,8 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { getModelByUserType } from "./getModelByUserType.js";
 import { generateAccessAndRefreshToken } from "./tokenGenerator.js";
 
-// Generic Refresh Token Function
-const refreshAccessToken = asyncHandler(async (req, res) => {
+
+export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
 
@@ -75,4 +75,3 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export default refreshAccessToken;

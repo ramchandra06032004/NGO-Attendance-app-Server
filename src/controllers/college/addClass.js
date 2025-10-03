@@ -4,7 +4,7 @@ import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
-export default asyncHandler(async (req, res) => {
+export const addClass= asyncHandler(async (req, res) => {
   if (req.user.userType !== "college") {
     throw new ApiError(403, "Access denied: Only colleges can add classes");
   }

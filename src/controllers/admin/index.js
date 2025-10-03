@@ -1,5 +1,5 @@
-import addCollege from "./addCollege.js";
-import addNgo from "./addNgo.js";
-import registerAdmin from "./registerAdmin.js";
 
-export { addCollege, addNgo, registerAdmin };
+
+export * from "./addCollege.js";
+export * from "./addNgo.js";
+export * from "./registerAdmin.js";

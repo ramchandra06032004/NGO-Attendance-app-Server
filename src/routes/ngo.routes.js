@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
-import { addEvent, getEvents } from "../controllers/ngo";
+import { addEvent, getEvents } from "../controllers/ngo/index.js";
 
 const router = Router();
 

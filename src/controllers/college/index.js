@@ -1,4 +1,2 @@
-import addClass from "./addClass.js";
-import getClasses from "./getClasses.js";
-
-export { addClass, getClasses };
+export { addClass } from "./addClass.js" 
+export {getClasses} from "./getClasses.js"

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
-import { addClass, getClasses } from "../controllers/college";
-import { addStudents, getStudents } from "../controllers/class";
+import { addClass, getClasses } from "../controllers/college/index.js";
+import { addStudents, getStudents } from "../controllers/class/index.js";
 
 const router = Router();
 

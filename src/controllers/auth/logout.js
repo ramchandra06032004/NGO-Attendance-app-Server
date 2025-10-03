@@ -1,8 +1,8 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
-import getModelByUserType from "./getModelByUserType.js";
+import { getModelByUserType } from "./getModelByUserType.js";
 // Generic Logout Function
-const logout = asyncHandler(async (req, res) => {
+export const logout = asyncHandler(async (req, res) => {
   const { userType } = req.user; // This will come from the JWT token
 
   const Model = getModelByUserType(userType);
@@ -51,4 +51,4 @@ const logout = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, `${userType} logged out successfully`));
 });
 
-export default logout;
+

@@ -1,4 +1,2 @@
-import addEvent from "./addEvent.js";
-import getEvents from "./getEvents.js";
-
-export { addEvent, getEvents };
+export { addEvent} from "./addEvent.js";
+export { getEvents} from "./getEvents.js";
