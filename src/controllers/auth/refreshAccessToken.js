@@ -5,7 +5,6 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { getModelByUserType } from "./getModelByUserType.js";
 import { generateAccessAndRefreshToken } from "./tokenGenerator.js";
 
-
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
@@ -74,4 +73,3 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     );
   }
 });
-

@@ -35,5 +35,3 @@ export const generateAccessAndRefreshToken = async (userId, userType) => {
     throw new ApiError(500, "Error generating tokens");
   }
 };
-
-

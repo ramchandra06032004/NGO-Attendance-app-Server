@@ -14,7 +14,7 @@ const validateStringField = (field, fieldName, index) => {
   }
 };
 
-export const addStudents= asyncHandler(async (req, res) => {
+export const addStudents = asyncHandler(async (req, res) => {
   if (req.user.userType !== "college") {
     throw new ApiError(
       403,

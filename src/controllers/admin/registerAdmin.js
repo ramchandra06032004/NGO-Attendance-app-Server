@@ -26,5 +26,3 @@ export const registerAdmin = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(201, newUser, "Admin registered successfully"));
 });
-
-
