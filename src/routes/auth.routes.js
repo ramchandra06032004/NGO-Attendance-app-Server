@@ -15,7 +15,7 @@ const router = Router();
 router.route("/login").post(login);
 router.route("/refresh-token").post(refreshAccessToken);
 
-router.route("/register/admin").post(registerAdmin);
+router.route("/register/admin").post(verifyJWT, registerAdmin);
 // TODO: Add registerCollege and registerNGO functions
 
 // Protected routes - Logout (works for all user types)
