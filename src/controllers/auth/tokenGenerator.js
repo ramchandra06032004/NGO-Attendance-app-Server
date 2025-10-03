@@ -1,7 +1,7 @@
 import { ApiError } from "../../utils/ApiError.js";
-import getModelByUserType from "./getModelByUserType.js";
+import { getModelByUserType } from "./getModelByUserType.js";
 
-const generateAccessAndRefreshToken = async (userId, userType) => {
+export const generateAccessAndRefreshToken = async (userId, userType) => {
   try {
     const Model = getModelByUserType(userType);
     const user = await Model.findById(userId);
@@ -36,4 +36,4 @@ const generateAccessAndRefreshToken = async (userId, userType) => {
   }
 };
 
-export default generateAccessAndRefreshToken;
+

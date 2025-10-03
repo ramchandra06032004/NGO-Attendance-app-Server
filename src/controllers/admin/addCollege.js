@@ -1,9 +1,9 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { College } from "../../models/college.js";
-import ApiResponse from "../../utils/ApiResponse.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
 
-const addCollege = asyncHandler(async (req, res) => {
+export const addCollege = asyncHandler(async (req, res) => {
   try {
     if (req.user.userType !== "admin") {
       throw new ApiError(403, "Only admin users can add colleges");
@@ -30,4 +30,4 @@ const addCollege = asyncHandler(async (req, res) => {
   }
 });
 
-export default addCollege;
+

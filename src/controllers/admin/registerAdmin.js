@@ -1,9 +1,9 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { Admin } from "../../models/admin.js";
-import ApiResponse from "../../utils/ApiResponse.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
 
-const registerAdmin = asyncHandler(async (req, res) => {
+export const registerAdmin = asyncHandler(async (req, res) => {
   if (req.user == undefined || req.user.userType !== "admin") {
     throw new ApiError(403, "Only admin users can register new admins");
   }
@@ -27,4 +27,4 @@ const registerAdmin = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, newUser, "Admin registered successfully"));
 });
 
-export default registerAdmin;
+

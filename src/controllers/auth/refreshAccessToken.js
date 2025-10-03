@@ -1,10 +1,12 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
-import { ApiError } from "../../utils/ApiError.js";
-import ApiResponse from "../../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import { ApiError } from "../../utils/ApiError.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import { getModelByUserType } from "./getModelByUserType.js";
+import { generateAccessAndRefreshToken } from "./tokenGenerator.js";
 
-// Generic Refresh Token Function
-const refreshAccessToken = asyncHandler(async (req, res) => {
+
+export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
 
@@ -28,7 +30,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     // Validate refresh token based on user type
     let isValidToken = false;
-    if (userType.toLowerCase() === "admin" || userType.toLowerCase() === "college") {
+    if (
+      userType.toLowerCase() === "admin" ||
+      userType.toLowerCase() === "college"
+    ) {
       isValidToken = incomingRefreshToken === user.refreshToken;
     } else {
       // For NGO, check in tokens array
@@ -70,4 +75,3 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export default refreshAccessToken;
