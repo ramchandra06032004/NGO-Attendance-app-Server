@@ -5,7 +5,7 @@ import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
-export const addEvent= asyncHandler(async (req, res) => {
+export const addEvent = asyncHandler(async (req, res) => {
   if (req.user.userType !== "ngo") {
     throw new ApiError(403, "Access denied: Only NGOs can add events");
   }
@@ -53,7 +53,7 @@ export const addEvent= asyncHandler(async (req, res) => {
     description,
     images: images || [],
     eventDate: parsedDate.toISOString(),
-    college: collegeId,
+    collegeId,
   });
 
   // add event id to NGO's events array

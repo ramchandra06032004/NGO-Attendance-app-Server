@@ -18,7 +18,7 @@ router
   .route("/classes/:classId/students")
   .get(verifyJWT, getStudents)
   .post(verifyJWT, addStudents);
-// Note: classId param is required in the above two routes
+// Note: classId param is required in the above route
 
 // router.route("/profile").get(verifyJWT, getCollegeProfile);
 // router.route("/profile").put(verifyJWT, updateCollegeProfile);

@@ -49,7 +49,6 @@ const studentSchema = new mongoose.Schema(
     },
     prn: {
       type: String,
-      unique: true,
       required: true,
       trim: true,
     },

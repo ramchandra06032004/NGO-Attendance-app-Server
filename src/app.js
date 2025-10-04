@@ -8,11 +8,7 @@ import authRoutes from "./routes/auth.routes.js";
 import collegeRoutes from "./routes/college.routes.js";
 import ngoRoutes from "./routes/ngo.routes.js";
 
-
-
-
 const app = express();
-
 
 app.use(
   cors({
@@ -27,7 +23,7 @@ app.use(
 );
 app.use(
   express.json({
-    limit: "16kb", 
+    limit: "16kb",
   })
 );
 app.use(
@@ -42,14 +38,11 @@ if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
 
-
 app.get("/api/health", healthCheck);
-app.use("/api/v1/auth", authRoutes); 
-app.use("/api/v1/admin", adminRoutes); 
-app.use("/api/v1/college", collegeRoutes); 
-app.use("/api/v1/ngo", ngoRoutes); 
-
-
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/college", collegeRoutes);
+app.use("/api/v1/ngo", ngoRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -61,11 +54,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-
 app.use((req, res, next) => {
   console.log("Request Path:", req.path);
-  
+
   if (req.path.startsWith("/api/")) {
     res.status(404).json({
       success: false,
@@ -75,7 +66,6 @@ app.use((req, res, next) => {
     next();
   }
 });
-
 
 app.use((req, res) => {
   res.status(404).json({

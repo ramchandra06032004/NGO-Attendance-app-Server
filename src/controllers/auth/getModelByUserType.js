@@ -13,5 +13,3 @@ export const getModelByUserType = (userType) => {
       throw new ApiError(400, "Invalid user type");
   }
 };
-
-

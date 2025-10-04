@@ -1,5 +1,4 @@
 import { Class } from "../../models/class.js";
-import { College } from "../../models/college.js";
 import { Student } from "../../models/student.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
@@ -14,7 +13,7 @@ const validateStringField = (field, fieldName, index) => {
   }
 };
 
-export const addStudents= asyncHandler(async (req, res) => {
+export const addStudents = asyncHandler(async (req, res) => {
   if (req.user.userType !== "college") {
     throw new ApiError(
       403,
@@ -34,16 +33,8 @@ export const addStudents= asyncHandler(async (req, res) => {
     throw new ApiError(403, "Class does not belong to this college");
   }
 
-  // get all student IDs in this college (optimized)
-  const allStudentIdsInCollege = await Class.aggregate([
-    { $match: { _id: { $in: collegeUser.classes } } },
-    { $unwind: "$students" },
-    { $group: { _id: null, studentIds: { $push: "$students" } } },
-  ]);
-
-  const studentIdsArray = allStudentIdsInCollege[0]?.studentIds || [];
-
-  const { students } = req.body;
+  // handle both formats: direct array or {students: array}
+  const students = Array.isArray(req.body) ? req.body : req.body.students;
 
   // validate students array
   if (!students) {
@@ -68,7 +59,27 @@ export const addStudents= asyncHandler(async (req, res) => {
     validateStringField(student.prn, "PRN", i);
   }
 
-  // fail-fast check for duplicate PRNs in college (optimized - stops at first match)
+  const existingEmail = await Student.findOne({
+    email: { $in: students.map((s) => s.email) },
+  }).select("email");
+
+  if (existingEmail) {
+    throw new ApiError(
+      409,
+      `Student with email ${existingEmail.email} already exists in database`
+    );
+  }
+
+  // get all student IDs in this college
+  const allStudentIdsInCollege = await Class.aggregate([
+    { $match: { _id: { $in: collegeUser.classes } } },
+    { $unwind: "$students" },
+    { $group: { _id: null, studentIds: { $push: "$students" } } },
+  ]);
+
+  const studentIdsArray = allStudentIdsInCollege[0]?.studentIds || [];
+
+  // fail-fast check for duplicate PRNs in college
   const existingPRN = await Student.findOne({
     _id: { $in: studentIdsArray },
     prn: { $in: students.map((s) => s.prn) },
