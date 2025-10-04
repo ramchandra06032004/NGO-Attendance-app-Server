@@ -18,9 +18,16 @@ export const addCollege = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
 
-  const existingCollege = await College.findOne({ email });
+  const existingCollege = await College.findOne({
+    $or: [{ email }, { name }],
+  }).select("email name");
+
   if (existingCollege) {
-    throw new ApiError(409, "College with this email already exists");
+    const duplicateField = existingCollege.email === email ? "email" : "name";
+    throw new ApiError(
+      409,
+      `College with this ${duplicateField} already exists`
+    );
   }
 
   const newCollege = await College.create({ name, email, address, password });
