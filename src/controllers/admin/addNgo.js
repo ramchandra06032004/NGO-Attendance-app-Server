@@ -19,9 +19,13 @@ export const addNgo = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
 
-  const existingNgo = await Ngo.findOne({ email });
+  const existingNgo = await Ngo.findOne({
+    $or: [{ email }, { name }],
+  }).select("email name");
+
   if (existingNgo) {
-    throw new ApiError(409, "NGO with this email already exists");
+    const duplicateField = existingNgo.email === email ? "email" : "name";
+    throw new ApiError(409, `NGO with this ${duplicateField} already exists`);
   }
 
   const newNgo = await Ngo.create({
