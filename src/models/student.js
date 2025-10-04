@@ -1,4 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import hashPasswordHook from "../utils/loginUtils/hashPassword.js";
+import { hashPasswordOnUpdate } from "../utils/loginUtils/hashOnUpdate.js";
 
 const studentSchema = new mongoose.Schema(
   {
@@ -55,5 +57,10 @@ const studentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+studentSchema.pre("save", hashPasswordHook)
+studentSchema.pre("findOneAndUpdate", hashPasswordOnUpdate);
+studentSchema.pre("updateOne", hashPasswordOnUpdate);
+studentSchema.pre("updateMany", hashPasswordOnUpdate);
 
 export const Student = mongoose.model("Student", studentSchema);

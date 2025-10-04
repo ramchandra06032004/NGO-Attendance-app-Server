@@ -3,6 +3,7 @@ import hashPasswordHook from "../utils/loginUtils/hashPassword.js";
 import comparePassword from "../utils/loginUtils/comparePassword.js";
 import generateAccessToken from "../utils/loginUtils/accessTokenGen.js";
 import generateRefreshToken from "../utils/loginUtils/refreshTokenGen.js";
+import { hashPasswordOnUpdate } from "../utils/loginUtils/hashOnUpdate.js";
 
 const ngoSchema = new mongoose.Schema(
   {
@@ -73,6 +74,10 @@ const ngoSchema = new mongoose.Schema(
 
 // Add password hashing middleware
 ngoSchema.pre("save", hashPasswordHook);
+
+ngoSchema.pre("findOneAndUpdate", hashPasswordOnUpdate);
+ngoSchema.pre("updateOne", hashPasswordOnUpdate);
+ngoSchema.pre("updateMany", hashPasswordOnUpdate);
 
 // Add methods
 ngoSchema.methods.comparePassword = comparePassword;

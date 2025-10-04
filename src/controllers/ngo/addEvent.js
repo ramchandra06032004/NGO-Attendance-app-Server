@@ -54,6 +54,7 @@ export const addEvent = asyncHandler(async (req, res) => {
     images: images || [],
     eventDate: parsedDate.toISOString(),
     collegeId,
+    createdBy: ngoUser._id, // FIX: Set the createdBy field
   });
 
   // add event id to NGO's events array

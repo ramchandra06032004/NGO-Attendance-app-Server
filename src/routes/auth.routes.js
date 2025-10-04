@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { conditionalAdminAuth } from "../middlewares/conditionalAuth.middlewares.js";
 import { registerAdmin } from "../controllers/admin/index.js";
 import {
   login,
@@ -15,10 +16,10 @@ const router = Router();
 router.route("/login").post(login);
 router.route("/refresh-token").post(refreshAccessToken);
 
-// TODO: Add registerCollege and registerNGO functions
+// Smart admin registration - public for first admin, protected for subsequent ones
+router.route("/register/admin").post(conditionalAdminAuth, registerAdmin);
 
 // Protected routes - Logout (works for all user types)
-router.route("/register/admin").post(verifyJWT, registerAdmin);
 router.route("/logout").post(verifyJWT, logout);
 
 export default router;

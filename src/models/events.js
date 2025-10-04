@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
   {
@@ -32,7 +32,11 @@ const eventSchema = new mongoose.Schema(
       ref: "College",
       required: true,
     },
-
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "NGO",
+      required: true,
+    },
   },
   { timestamps: true }
 );
