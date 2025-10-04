@@ -53,7 +53,7 @@ export const addEvent = asyncHandler(async (req, res) => {
     description,
     images: images || [],
     eventDate: parsedDate.toISOString(),
-    college: collegeId,
+    collegeId,
   });
 
   // add event id to NGO's events array

@@ -1,5 +1,4 @@
 import { Class } from "../../models/class.js";
-import { College } from "../../models/college.js";
 import { Student } from "../../models/student.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
@@ -34,7 +33,8 @@ export const addStudents = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Class does not belong to this college");
   }
 
-  const { students } = req.body;
+  // handle both formats: direct array or {students: array}
+  const students = Array.isArray(req.body) ? req.body : req.body.students;
 
   // validate students array
   if (!students) {
@@ -57,6 +57,17 @@ export const addStudents = asyncHandler(async (req, res) => {
     validateStringField(student.department, "Department", i);
     validateStringField(student.email, "Email", i);
     validateStringField(student.prn, "PRN", i);
+  }
+
+  const existingEmail = await Student.findOne({
+    email: { $in: students.map((s) => s.email) },
+  }).select("email");
+
+  if (existingEmail) {
+    throw new ApiError(
+      409,
+      `Student with email ${existingEmail.email} already exists in database`
+    );
   }
 
   // get all student IDs in this college
