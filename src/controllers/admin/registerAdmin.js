@@ -4,9 +4,16 @@ import { Admin } from "../../models/admin.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 
 export const registerAdmin = asyncHandler(async (req, res) => {
-  if (req.user == undefined || req.user.userType !== "admin") {
-    throw new ApiError(403, "Only admin users can register new admins");
+  // Check if this is the first admin registration
+  const adminCount = await Admin.countDocuments();
+
+  // If admins exist, require authentication and admin role
+  if (adminCount > 0) {
+    if (!req.user || req.user.userType !== "admin") {
+      throw new ApiError(403, "Only admin users can register new admins");
+    }
   }
+
   const { username, email, password } = req.body;
 
   if ([username, email, password].some((field) => field.trim() === "")) {

@@ -3,6 +3,7 @@ import hashPasswordHook from "../utils/loginUtils/hashPassword.js";
 import comparePassword from "../utils/loginUtils/comparePassword.js";
 import generateAccessToken from "../utils/loginUtils/accessTokenGen.js";
 import generateRefreshToken from "../utils/loginUtils/refreshTokenGen.js";
+import { hashPasswordOnUpdate } from "../utils/loginUtils/hashOnUpdate.js";
 
 const collegeSchema = new mongoose.Schema(
   {
@@ -46,8 +47,13 @@ const collegeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Add password hashing middleware
+// Add password hashing middleware for save operations
 collegeSchema.pre("save", hashPasswordHook);
+
+// Apply password hashing middleware to all update operations
+collegeSchema.pre("findOneAndUpdate", hashPasswordOnUpdate);
+collegeSchema.pre("updateOne", hashPasswordOnUpdate);
+collegeSchema.pre("updateMany", hashPasswordOnUpdate);
 
 // Add methods
 collegeSchema.methods.comparePassword = comparePassword;
