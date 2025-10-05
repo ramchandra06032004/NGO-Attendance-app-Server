@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
-import { addEvent, getEvents, updateEvents } from "../controllers/ngo/index.js";
+import {
+  addEvent,
+  getEvents,
+  updateEvents,
+  removeEvent,
+} from "../controllers/ngo/index.js";
 
 const router = Router();
 
@@ -11,6 +16,10 @@ const router = Router();
 router.route("/events").get(verifyJWT, getEvents).post(verifyJWT, addEvent);
 router.route("/update-events/:eventId").put(verifyJWT, updateEvents);
 
+router
+  .route("/events/:eventId")
+  .put(verifyJWT, updateEvents)
+  .delete(verifyJWT, removeEvent);
 // router.route("/profile").get(verifyJWT, getNgoProfile);
 // router.route("/profile").put(verifyJWT, updateNgoProfile);
 // router.route("/events").get(verifyJWT, getNgoEvents);
