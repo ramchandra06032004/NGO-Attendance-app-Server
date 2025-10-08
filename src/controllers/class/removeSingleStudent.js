@@ -14,8 +14,7 @@ export const removeSingleStudent = asyncHandler(async (req, res) => {
 
   // student existence check
   const studentExists = await Student.findById(studentId);
-  if (!studentExists)
-    throw new ApiError(404, "Student not found, maybe he/she was removed");
+  if (!studentExists) throw new ApiError(404, "Student not found");
 
   // class existsence check
   const classExists = await Class.findById(classId);
@@ -27,7 +26,10 @@ export const removeSingleStudent = asyncHandler(async (req, res) => {
 
   // student belongs to class check
   if (!classExists.students.includes(studentId))
-    throw new ApiError(400, "Student is not in this class");
+    throw new ApiError(
+      400,
+      "Student is not in this class, maybe he/she was removed"
+    );
 
   // Remove student from class
   await Class.findByIdAndUpdate(classId, {
