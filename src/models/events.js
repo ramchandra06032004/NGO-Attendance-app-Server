@@ -27,11 +27,22 @@ const eventSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    collegeId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "College",
-      required: true,
-    },
+    colleges: [
+      {
+        collegeId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "College",
+          required: true,
+        },
+        students: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Student",
+            required: true,
+          }
+        ]
+      },
+    ],
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NGO",

@@ -8,6 +8,7 @@ import {
 } from "../controllers/class/index.js";
 import { updateClass } from "../controllers/college/index.js";
 import { getAllColleges } from "../controllers/college/index.js";
+import { getEventAttendanceByCollege } from "../controllers/attendence/index.js";
 
 const router = Router();
 
@@ -28,5 +29,10 @@ router
 // Note: classId param is required in the above route
 
 router.route("/update-class/:classId").put(verifyJWT, updateClass);
+
+// Attendance routes
+router
+  .route("/event/:eventId/attendance")
+  .get(verifyJWT, getEventAttendanceByCollege);
 
 export default router;
