@@ -1,8 +1,8 @@
-import { Ngo } from "../../models/ngo";
-import { Event } from "../../models/events";
-import { ApiError } from "../../utils/ApiError";
-import { ApiResponse } from "../../utils/ApiResponse";
-import { asyncHandler } from "../../utils/asyncHandler";
+import { Ngo } from "../../models/ngo.js";
+import { Event } from "../../models/events.js";
+import { ApiError } from "../../utils/ApiError.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export const removeEvent = asyncHandler(async (req, res) => {
   if (req.user.userType !== "ngo")
