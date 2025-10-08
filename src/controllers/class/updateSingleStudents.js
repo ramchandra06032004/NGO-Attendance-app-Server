@@ -50,7 +50,7 @@ export const updateSingleStudent = asyncHandler(async (req, res) => {
 
   // Update student
   await Student.updateOne(
-    { _id: studentId, collegeId: collegeId },
+    { _id: studentId },
     { $set: updateData }
   );
 
