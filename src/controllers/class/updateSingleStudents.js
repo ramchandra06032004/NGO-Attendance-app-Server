@@ -9,7 +9,6 @@ export const updateSingleStudent = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Only college users can update students");
   }
 
-  const { collegeId } = req.user;
   const { studentId } = req.params;
   const { name, email, department, password } = req.body;
 
@@ -30,10 +29,7 @@ export const updateSingleStudent = asyncHandler(async (req, res) => {
   }
 
   // Find student
-  const student = await Student.findOne({
-    _id: studentId,
-    collegeId: collegeId,
-  });
+  const student = await Student.findById(studentId);
   if (!student) {
     throw new ApiError(
       404,
@@ -49,10 +45,7 @@ export const updateSingleStudent = asyncHandler(async (req, res) => {
   if (password) updateData.password = password;
 
   // Update student
-  await Student.updateOne(
-    { _id: studentId },
-    { $set: updateData }
-  );
+  await Student.updateOne({ _id: studentId }, { $set: updateData });
 
   // Send response
   res.status(200).json(new ApiResponse(200, "Student updated successfully"));
