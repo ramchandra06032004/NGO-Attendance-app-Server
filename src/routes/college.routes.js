@@ -13,6 +13,7 @@ import {
   removeSingleStudent,
 } from "../controllers/class/index.js";
 import { getAllColleges } from "../controllers/college/index.js";
+import { getEventAttendanceByCollege } from "../controllers/attendence/index.js";
 
 const router = Router();
 
@@ -36,5 +37,10 @@ router
   .route("/:classId/students/:studentId")
   .put(verifyJWT, updateSingleStudent)
   .delete(verifyJWT, removeSingleStudent);
+
+// Attendance routes
+router
+  .route("/event/:eventId/attendance")
+  .get(verifyJWT, getEventAttendanceByCollege);
 
 export default router;
