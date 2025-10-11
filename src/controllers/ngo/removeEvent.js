@@ -13,17 +13,16 @@ export const removeEvent = asyncHandler(async (req, res) => {
   const { eventId } = req.params;
   // event existence check
   const eventExists = await Event.findById(eventId);
-  if (!eventExists)
-    throw new ApiError(404, "Event not found, maybe it was removed");
+  if (!eventExists) throw new ApiError(404, "Event not found");
 
   // event belongs to ngo check
   if (!ngoUser.eventsId.includes(eventId))
-    throw new ApiError(403, "Event does not belong to this NGO");
+    throw new ApiError(
+      403,
+      "Event does not belong to this NGO, may be it was removed"
+    );
 
-  // remove event
-  await Event.findByIdAndDelete(eventId);
-
-  // remove event form ngo Events array
+  // remove event from ngo Events array
   await Ngo.findByIdAndUpdate(ngoUser._id, {
     $pull: { eventsId: eventId },
   });

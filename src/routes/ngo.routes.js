@@ -5,6 +5,7 @@ import {
   getEvents,
   updateEvents,
   getAllNgos,
+  removeEvent,
 } from "../controllers/ngo/index.js";
 import {
   markAttendance,
@@ -18,7 +19,10 @@ router.route("/get-all-ngos").get(verifyJWT, getAllNgos);
 
 // Event routes
 router.route("/events").get(verifyJWT, getEvents).post(verifyJWT, addEvent);
-router.route("/update-events/:eventId").put(verifyJWT, updateEvents);
+router
+  .route("/events/:eventId")
+  .put(verifyJWT, updateEvents)
+  .delete(verifyJWT, removeEvent);
 
 // Attendance routes
 router

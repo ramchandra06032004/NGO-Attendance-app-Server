@@ -1,4 +1,3 @@
-import { Ngo } from "../../models/ngo.js";
 import { Event } from "../../models/events.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
