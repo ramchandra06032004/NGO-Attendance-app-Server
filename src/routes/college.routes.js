@@ -11,6 +11,7 @@ import {
   getStudents,
   updateSingleStudent,
   removeSingleStudent,
+  getAllStudents,
 } from "../controllers/class/index.js";
 import { getAllColleges } from "../controllers/college/index.js";
 import { getEventAttendanceForCollege } from "../controllers/attendence/index.js";
@@ -28,6 +29,8 @@ router
   .delete(verifyJWT, removeClass);
 
 // Students management
+router.route("/students").get(verifyJWT, getAllStudents);
+
 router
   .route("/:classId/students")
   .get(verifyJWT, getStudents)
