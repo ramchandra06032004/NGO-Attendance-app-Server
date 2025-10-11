@@ -1,5 +1,61 @@
-//The attendance will get to the particular college student only
-//Like college name is ABC then the attendance will get to the student of ABC college only
+/**
+ * GET EVENT ATTENDANCE FOR SPECIFIC COLLEGE
+ *
+ * PURPOSE:
+ * This controller retrieves attendance data for a specific college for a particular event.
+ * It handles different user types (College and NGO) with different access patterns.
+ *
+ * USER ACCESS:
+ * - COLLEGE USERS: Can only view attendance for their own college (uses their user ID automatically)
+ * - NGO USERS: Can view attendance for any college by specifying college ID in route parameter
+ *
+ * ROUTES:
+ * - College Route: GET /college/event/:eventId/attendance (no collegeId needed)
+ * - NGO Route: GET /ngo/event/:eventId/college/:collegeId/attendance (collegeId required)
+ *
+ * PARAMETERS:
+ * - eventId (required): ID of the event to get attendance for
+ * - collegeId (required for NGO, auto-filled for College): ID of the college
+ *
+ * RETURNS:
+ * {
+ *   statusCode: 200,
+ *   data: {
+ *     eventId: "event_object_id",
+ *     event: {
+ *       location: "event location",
+ *       aim: "event purpose",
+ *       eventDate: "YYYY-MM-DD",
+ *       createdBy: "ngo_object_id"
+ *     },
+ *     attendance: [
+ *       {
+ *         _id: "college_object_id",
+ *         collegeName: "College Name",
+ *         students: [
+ *           {
+ *             studentId: "student_object_id",
+ *             name: "Student Name",
+ *             prn: "Student PRN",
+ *             className: "Class Name",
+ *             attendanceMarkedAt: "timestamp or null"
+ *           }
+ *         ],
+ *         totalStudents: number
+ *       }
+ *     ],
+ *     totalColleges: 1 (always 1 for specific college),
+ *     totalStudentsPresent: number
+ *   },
+ *   message: "Event attendance retrieved successfully"
+ * }
+ *
+ * ERROR CASES:
+ * - 400: Invalid event ID or college ID
+ * - 403: Unauthorized user type or access denied
+ * - 404: Event not found or college not found
+ */
+
 import mongoose from "mongoose";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
@@ -8,37 +64,43 @@ import { Event } from "../../models/events.js";
 import { Student } from "../../models/student.js";
 import { College } from "../../models/college.js";
 
-// Using pre-organized Event model data
-export const getEventAttendanceByCollege = asyncHandler(async (req, res) => {
-  const { eventId } = req.params;
-  const { collegeId } = req.query;
-  const userType = req.user.userType;
-  const userId = req.user._id;
+export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
+  if (req.user.userType !== "college" && req.user.userType !== "ngo") {
+    throw new ApiError(
+      403,
+      "Access denied: Only colleges and NGOs can access this endpoint"
+    );
+  }
 
   if (req.user == undefined) {
     throw new ApiError(403, "Access denied: Unauthorized user");
   }
+
+  const { eventId, collegeId } = req.params;
+  const userType = req.user.userType;
+  const userId = req.user._id;
 
   // Validate required parameters
   if (!mongoose.Types.ObjectId.isValid(eventId)) {
     throw new ApiError(400, "Invalid event ID");
   }
 
-  // If college user, they can only see their own college's attendance
-  let finalCollegeId = collegeId;
+  // Determine college ID based on user type
+  let finalCollegeId;
   if (userType === "college") {
-    finalCollegeId = userId.toString(); // College user can only see their own data
-  }
-
-  if (userType === "college" && userId.toString() !== finalCollegeId) {
-    throw new ApiError(
-      403,
-      "Access denied: Cannot access other college's data"
-    );
-  }
-
-  if (finalCollegeId && !mongoose.Types.ObjectId.isValid(finalCollegeId)) {
-    throw new ApiError(400, "Invalid college ID");
+    // For college users, use their own ID from req.user._id
+    finalCollegeId = userId.toString();
+  } else if (userType === "ngo") {
+    // For NGO users, get college ID from route parameters
+    if (!collegeId) {
+      throw new ApiError(400, "College ID is required for NGO users");
+    }
+    if (!mongoose.Types.ObjectId.isValid(collegeId)) {
+      throw new ApiError(400, "Invalid college ID");
+    }
+    finalCollegeId = collegeId;
+  } else {
+    throw new ApiError(403, "Access denied: Invalid user type");
   }
 
   // Get event with populated college data
@@ -108,48 +170,6 @@ export const getEventAttendanceByCollege = asyncHandler(async (req, res) => {
         },
       ];
     }
-  } else {
-    // Get all colleges' attendance data
-    if (event.colleges.length === 0) {
-      attendanceData = [];
-    } else {
-      // Process each college in the event
-      for (const eventCollege of event.colleges) {
-        // OPTIMIZED: Get students directly using pre-organized student IDs
-        const students = await Student.find({
-          _id: { $in: eventCollege.students },
-        })
-          .populate("classId", "className")
-          .select("name prn attendedEvents");
-
-        // Format student data with attendance info
-        const studentData = students.map((student) => {
-          const eventAttendance = student.attendedEvents.find(
-            (att) => att.eventId.toString() === eventId
-          );
-
-          return {
-            studentId: student._id,
-            name: student.name,
-            prn: student.prn,
-            className: student.classId.className,
-            attendanceMarkedAt: eventAttendance
-              ? eventAttendance.attendanceMarkedAt
-              : null,
-          };
-        });
-
-        attendanceData.push({
-          _id: eventCollege.collegeId._id,
-          collegeName: eventCollege.collegeId.name,
-          students: studentData,
-          totalStudents: studentData.length,
-        });
-      }
-
-      // Sort by college name
-      attendanceData.sort((a, b) => a.collegeName.localeCompare(b.collegeName));
-    }
   }
 
   return res.status(200).json(
@@ -174,4 +194,3 @@ export const getEventAttendanceByCollege = asyncHandler(async (req, res) => {
     )
   );
 });
-

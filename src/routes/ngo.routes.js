@@ -9,6 +9,7 @@ import {
 import {
   markAttendance,
   getEventAttendanceForNGO,
+  getEventAttendanceForCollege,
 } from "../controllers/attendence/index.js";
 
 const router = Router();
@@ -27,5 +28,10 @@ router
 router
   .route("/event/:eventId/attendance")
   .get(verifyJWT, getEventAttendanceForNGO);
+
+// New route for NGO to get specific college attendance
+router
+  .route("/event/:eventId/college/:collegeId/attendance")
+  .get(verifyJWT, getEventAttendanceForCollege);
 
 export default router;

@@ -13,7 +13,7 @@ import {
   removeSingleStudent,
 } from "../controllers/class/index.js";
 import { getAllColleges } from "../controllers/college/index.js";
-import { getEventAttendanceByCollege } from "../controllers/attendence/index.js";
+import { getEventAttendanceForCollege } from "../controllers/attendence/index.js";
 
 const router = Router();
 
@@ -41,6 +41,6 @@ router
 // Attendance routes
 router
   .route("/event/:eventId/attendance")
-  .get(verifyJWT, getEventAttendanceByCollege);
+  .get(verifyJWT, getEventAttendanceForCollege);
 
 export default router;

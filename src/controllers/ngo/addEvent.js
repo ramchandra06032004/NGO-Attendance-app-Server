@@ -12,11 +12,11 @@ export const addEvent = asyncHandler(async (req, res) => {
 
   const ngoUser = req.user;
 
-  const { location, aim, description, images, eventDate, collegeName } =
+  const { location, aim, description, images, eventDate  } =
     req.body;
 
   // Missing fields check
-  if (!location || !aim || !description || !eventDate || !collegeName)
+  if (!location || !aim || !description || !eventDate)
     throw new ApiError(400, "Required fields are missing");
 
   // Date validation
@@ -29,7 +29,7 @@ export const addEvent = asyncHandler(async (req, res) => {
 
   // String fields validation
   if (
-    [location, aim, description, collegeName].some(
+    [location, aim, description ].some(
       (field) => typeof field !== "string" || !field.trim()
     )
   )
@@ -42,18 +42,12 @@ export const addEvent = asyncHandler(async (req, res) => {
   if (images && images.some((img) => typeof img !== "string" || !img.trim()))
     throw new ApiError(400, "Non-string element found in images array");
 
-  // Find collegeId by collegeName
-  const college = await College.findOne({ name: collegeName });
-  if (!college) throw new ApiError(404, "College not found");
-  const collegeId = college._id;
-
   const newEvent = await Event.create({
     location,
     aim,
     description,
     images: images || [],
     eventDate: parsedDate.toISOString(),
-    collegeId,
     createdBy: ngoUser._id, // FIX: Set the createdBy field
   });
 
