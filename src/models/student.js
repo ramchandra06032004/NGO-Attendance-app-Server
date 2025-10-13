@@ -37,6 +37,7 @@ const studentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
       required: true,
+      index: true,
     },
     password: {
       type: String,
@@ -58,7 +59,7 @@ const studentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-studentSchema.pre("save", hashPasswordHook)
+studentSchema.pre("save", hashPasswordHook);
 studentSchema.pre("findOneAndUpdate", hashPasswordOnUpdate);
 studentSchema.pre("updateOne", hashPasswordOnUpdate);
 studentSchema.pre("updateMany", hashPasswordOnUpdate);

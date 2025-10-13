@@ -14,12 +14,20 @@ export const removeClass = asyncHandler(async (req, res) => {
   const { classId } = req.params;
   // class existence check
   const classExists = await Class.findById(classId);
-  if (!classExists)
-    throw new ApiError(404, "Class not found, maybe it was removed");
+  if (!classExists) throw new ApiError(404, "Class not found");
 
   // class belongs to college check
   if (!collegeUser.classes.includes(classId))
-    throw new ApiError(403, "Class does not belong to this college");
+    throw new ApiError(
+      403,
+      "Class does not belong to this college, may be it was removed"
+    );
+
+  if (classExists.students.length)
+    throw new ApiError(
+      400,
+      "Class is not empty! Remove all students before deleting the class"
+    );
 
   // remove class
   await Class.findByIdAndDelete(classId);
