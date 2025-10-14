@@ -5,3 +5,4 @@ export { removeSingleStudent } from "./removeSingleStudent.js";
 export { getAllStudents } from "./getAllStudents.js";
 export { getRemovedStudents } from "./getRemovedStudents.js";
 export { recoverStudent } from "./recoverStudent.js";
+export { updateStudentClass } from "./updateStudentClass.js";

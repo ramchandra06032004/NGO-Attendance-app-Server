@@ -14,6 +14,7 @@ import {
   getAllStudents,
   getRemovedStudents,
   recoverStudent,
+  updateStudentClass,
 } from "../controllers/class/index.js";
 import { getAllColleges } from "../controllers/college/index.js";
 import { getEventAttendanceForCollege } from "../controllers/attendence/index.js";
@@ -34,6 +35,9 @@ router
 router.route("/students").get(verifyJWT, getAllStudents);
 router.route("/students/removed").get(verifyJWT, getRemovedStudents);
 router.route("/students/recover/:studentId").patch(verifyJWT, recoverStudent);
+router
+  .route("/students/:studentId/class/:newClassId")
+  .patch(verifyJWT, updateStudentClass);
 
 router
   .route("/:classId/students")
