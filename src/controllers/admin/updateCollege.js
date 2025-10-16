@@ -12,12 +12,16 @@ export const updateCollege = asyncHandler(async (req, res) => {
 
   const { name, email, address, password, collegeId } = req.body;
 
+  if (!collegeId) {
+    throw new ApiError(400, "College ID is required");
+  }
+
   // Validation
   if (!mongoose.Types.ObjectId.isValid(collegeId)) {
     throw new ApiError(400, "Invalid college ID");
   }
 
-  if (!name && !email && !address && !password) {
+  if (!name && !email && !address && !password ) {
     throw new ApiError(400, "At least one field is required to update");
   }
 

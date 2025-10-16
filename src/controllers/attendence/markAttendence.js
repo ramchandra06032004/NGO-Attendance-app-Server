@@ -16,6 +16,13 @@ export const markAttendance = asyncHandler(async (req, res) => {
   const { studentIds, eventId, collegeId } = req.body;
   const ngoId = req.user._id;
 
+  if (!eventId) {
+    throw new ApiError(400, "Event ID is required");
+  }
+  if (!collegeId) {
+    throw new ApiError(400, "College ID is required");
+  }
+
   // Input validation
   if (!Array.isArray(studentIds) || studentIds.length === 0) {
     throw new ApiError(400, "studentIds must be a non-empty array");

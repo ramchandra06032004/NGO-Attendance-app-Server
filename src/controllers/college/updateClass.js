@@ -11,6 +11,10 @@ export const updateClass = asyncHandler(async (req, res) => {
 
   const { className, classId } = req.body;
 
+  if (!classId) {
+    throw new ApiError(400, "Class ID is required");
+  }
+
   if (!mongoose.Types.ObjectId.isValid(classId)) {
     throw new ApiError(400, "Invalid class ID");
   }
