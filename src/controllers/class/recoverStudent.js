@@ -13,7 +13,7 @@ export const recoverStudent = asyncHandler(async (req, res) => {
 
   const collegeUser = req.user;
 
-  const { studentId } = req.params;
+  const { studentId } = req.body;
   // student existence check
   const studentExists = await Student.findById(studentId);
   if (!studentExists) throw new ApiError(404, "Student not found");

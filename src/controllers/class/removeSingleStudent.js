@@ -10,7 +10,7 @@ export const removeSingleStudent = asyncHandler(async (req, res) => {
 
   const collegeUser = req.user;
 
-  const { classId, studentId } = req.params;
+  const { classId, studentId } = req.body;
 
   // student existence check
   const studentExists = await Student.findById(studentId);

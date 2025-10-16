@@ -18,16 +18,15 @@ const router = Router();
 router.route("/get-all-ngos").get(verifyJWT, getAllNgos);
 
 // Event routes
-router.route("/events").get(verifyJWT, getEvents).post(verifyJWT, addEvent);
 router
-  .route("/events/:eventId")
+  .route("/events")
+  .get(verifyJWT, getEvents)
+  .post(verifyJWT, addEvent)
   .put(verifyJWT, updateEvents)
   .delete(verifyJWT, removeEvent);
 
 // Attendance routes
-router
-  .route("/event/:eventId/college/:collegeId/mark-attendance")
-  .post(verifyJWT, markAttendance);
+router.route("/event/mark-attendance").post(verifyJWT, markAttendance);
 
 router
   .route("/event/:eventId/attendance")

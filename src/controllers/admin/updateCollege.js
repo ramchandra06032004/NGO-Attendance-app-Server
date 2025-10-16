@@ -10,8 +10,7 @@ export const updateCollege = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Only admin users can update colleges");
   }
 
-  const { collegeId } = req.params;
-  const { name, email, address, password } = req.body;
+  const { name, email, address, password, collegeId } = req.body;
 
   // Validation
   if (!mongoose.Types.ObjectId.isValid(collegeId)) {

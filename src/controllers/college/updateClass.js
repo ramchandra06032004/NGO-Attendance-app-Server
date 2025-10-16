@@ -9,8 +9,7 @@ export const updateClass = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Only college users can update classes");
   }
 
-  const { classId } = req.params;
-  const { className } = req.body;
+  const { className, classId } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(classId)) {
     throw new ApiError(400, "Invalid class ID");

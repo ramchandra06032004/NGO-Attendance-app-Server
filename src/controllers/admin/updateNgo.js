@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiError } from "../../utils/ApiError.js";
-import { College } from "../../models/college.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { Ngo } from "../../models/ngo.js";
 
@@ -11,8 +10,7 @@ export const updateNgo = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Only admin users can update NGOs");
   }
 
-  const { ngoId } = req.params;
-  const { name, email, address, password, mobile, registrationNumber } =
+  const { name, email, address, password, mobile, registrationNumber, ngoId } =
     req.body;
 
   // Validation

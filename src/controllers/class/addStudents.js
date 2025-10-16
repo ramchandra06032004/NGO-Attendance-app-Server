@@ -23,7 +23,7 @@ export const addStudents = asyncHandler(async (req, res) => {
 
   const collegeUser = req.user;
 
-  const { classId } = req.params;
+  const { classId } = req.body;
   // class existence check
   const classExists = await Class.findById(classId);
   if (!classExists) throw new ApiError(404, "Class not found");
