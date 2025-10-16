@@ -14,7 +14,7 @@ export const updateStudentClass = asyncHandler(async (req, res) => {
 
   const collegeUser = req.user;
 
-  const { studentId, newClassId } = req.params;
+  const { studentId, newClassId } = req.body;
   // student existence check
   const studentExists = await Student.findById(studentId);
   if (!studentExists) throw new ApiError(404, "Student not found");
