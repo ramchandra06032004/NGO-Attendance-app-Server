@@ -13,8 +13,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Access denied: Only NGOs can mark attendance");
   }
 
-  const { eventId, collegeId } = req.params;
-  const { studentIds } = req.body;
+  const { studentIds, eventId, collegeId } = req.body;
   const ngoId = req.user._id;
 
   // Input validation

@@ -9,9 +9,15 @@ export const updateEvents = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Access denied: Only NGOs can update events");
   }
   const ngoUser = req.user;
-  const { eventId } = req.params;
-  const { location, aim, description, images, eventDate, collegeName } =
-    req.body;
+  const {
+    location,
+    aim,
+    description,
+    images,
+    eventDate,
+    collegeName,
+    eventId,
+  } = req.body;
 
   // Validation
   if (!eventId) {

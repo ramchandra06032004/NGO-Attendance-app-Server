@@ -10,7 +10,7 @@ export const removeEvent = asyncHandler(async (req, res) => {
 
   const ngoUser = req.user;
 
-  const { eventId } = req.params;
+  const { eventId } = req.body;
   // event existence check
   const eventExists = await Event.findById(eventId);
   if (!eventExists) throw new ApiError(404, "Event not found");
