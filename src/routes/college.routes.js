@@ -24,28 +24,23 @@ const router = Router();
 router.route("/get-all-colleges").get(verifyJWT, getAllColleges);
 
 // Class management
-router.route("/classes").get(verifyJWT, getClasses).post(verifyJWT, addClass);
-
 router
-  .route("/classes/:classId")
+  .route("/classes")
+  .get(verifyJWT, getClasses)
+  .post(verifyJWT, addClass)
   .put(verifyJWT, updateClass)
   .delete(verifyJWT, removeClass);
 
 // Students management
 router.route("/students").get(verifyJWT, getAllStudents);
 router.route("/students/removed").get(verifyJWT, getRemovedStudents);
-router.route("/students/recover/:studentId").patch(verifyJWT, recoverStudent);
-router
-  .route("/students/:studentId/class/:newClassId")
-  .patch(verifyJWT, updateStudentClass);
+router.route("/students/recovery").patch(verifyJWT, recoverStudent);
+
+router.route("/:classId/students").get(verifyJWT, getStudents);
 
 router
-  .route("/:classId/students")
-  .get(verifyJWT, getStudents)
-  .post(verifyJWT, addStudents);
-
-router
-  .route("/:classId/students/:studentId")
+  .route("/students")
+  .post(verifyJWT, addStudents)
   .put(verifyJWT, updateSingleStudent)
   .delete(verifyJWT, removeSingleStudent);
 

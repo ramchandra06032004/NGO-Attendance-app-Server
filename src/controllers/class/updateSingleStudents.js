@@ -9,8 +9,7 @@ export const updateSingleStudent = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Only college users can update students");
   }
 
-  const { studentId } = req.params;
-  const { name, email, department, password } = req.body;
+  const { name, email, department, password, studentId } = req.body;
 
   // Validate ObjectId format
   if (!mongoose.Types.ObjectId.isValid(studentId)) {
