@@ -14,6 +14,7 @@ import {
   getAllStudents,
   getRemovedStudents,
   recoverStudent,
+  updateStudentClass,
 } from "../controllers/class/index.js";
 import { getAllColleges } from "../controllers/college/index.js";
 import { getEventAttendanceForCollege } from "../controllers/attendence/index.js";
@@ -31,16 +32,18 @@ router
   .delete(verifyJWT, removeClass);
 
 // Students management
-router.route("/students").get(verifyJWT, getAllStudents);
 router.route("/students/removed").get(verifyJWT, getRemovedStudents);
 router.route("/students/recovery").patch(verifyJWT, recoverStudent);
 
+// To get students of a particular class
 router.route("/:classId/students").get(verifyJWT, getStudents);
 
 router
   .route("/students")
+  .get(verifyJWT, getAllStudents) // To get all students in the logged in college
   .post(verifyJWT, addStudents)
   .put(verifyJWT, updateSingleStudent)
+  .patch(verifyJWT, updateStudentClass)
   .delete(verifyJWT, removeSingleStudent);
 
 // Attendance routes
