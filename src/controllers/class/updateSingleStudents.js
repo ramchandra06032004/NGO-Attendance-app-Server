@@ -11,6 +11,10 @@ export const updateSingleStudent = asyncHandler(async (req, res) => {
 
   const { name, email, department, password, studentId } = req.body;
 
+  if (!studentId) {
+    throw new ApiError(400, "Student ID is required");
+  }
+
   // Validate ObjectId format
   if (!mongoose.Types.ObjectId.isValid(studentId)) {
     throw new ApiError(400, "Invalid student ID format");

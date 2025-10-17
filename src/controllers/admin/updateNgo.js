@@ -13,6 +13,10 @@ export const updateNgo = asyncHandler(async (req, res) => {
   const { name, email, address, password, mobile, registrationNumber, ngoId } =
     req.body;
 
+  if (!ngoId) {
+    throw new ApiError(400, "NGO ID is required");
+  }
+  
   // Validation
   if (!mongoose.Types.ObjectId.isValid(ngoId)) {
     throw new ApiError(400, "Invalid NGO ID");
@@ -24,7 +28,7 @@ export const updateNgo = asyncHandler(async (req, res) => {
     !address &&
     !password &&
     !mobile &&
-    !registrationNumber
+    !registrationNumber 
   ) {
     throw new ApiError(400, "At least one field is required to update");
   }
