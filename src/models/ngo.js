@@ -51,9 +51,8 @@ const ngoSchema = new mongoose.Schema(
     },
     tokens: [
       {
-        token: {
+        refreshToken: {
           type: String,
-          required: true,
         },
         createdAt: {
           type: Date,
