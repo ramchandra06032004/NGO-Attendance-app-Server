@@ -19,7 +19,7 @@ export const generateAccessAndRefreshToken = async (userId, userType) => {
     ) {
       user.refreshToken = refreshToken;
     } else {
-      // For College and NGO models, we use tokens array
+      // For NGO models, we use tokens array
       //as at the same time multiple devices can be logged in
       user.tokens = user.tokens || [];
       user.tokens.push({
