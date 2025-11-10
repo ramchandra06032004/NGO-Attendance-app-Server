@@ -1,3 +1,4 @@
+// ...existing code...
 import { Class } from "../../models/class.js";
 import { Student } from "../../models/student.js";
 import { ApiError } from "../../utils/ApiError.js";
@@ -13,28 +14,35 @@ export const getAllStudents = asyncHandler(async (req, res) => {
 
   const collegeUser = req.user;
 
-  // Get all student IDs from all classes in this college (optimized aggregation)
-  const allStudentIdsInCollege = await Class.aggregate([
-    { $match: { _id: { $in: collegeUser.classes } } },
-    { $unwind: "$students" },
-    { $group: { _id: null, studentIds: { $push: "$students" } } },
-  ]);
+  // Fetch classes fully populated with student objects (exclude passwords)
+  const classesWithStudents = await Class.find({
+    _id: { $in: collegeUser.classes },
+  }).populate({
+    path: "students",
+    select: "-password -__v",
+  });
 
-  const studentIdsArray = allStudentIdsInCollege[0]?.studentIds || [];
-
-  // Fetch all students belonging to this college
-  const allStudents = await Student.find({
-    _id: { $in: studentIdsArray },
-  }).select("-password"); // Exclude password field
+  // Flatten and dedupe student objects
+  const allStudents = classesWithStudents.flatMap((c) => c.students || []);
+  const seen = new Set();
+  const uniqueStudents = [];
+  for (const s of allStudents) {
+    const id = String(s._id || s.id);
+    if (!seen.has(id)) {
+      seen.add(id);
+      uniqueStudents.push(s);
+    }
+  }
 
   res.status(200).json(
     new ApiResponse(
       200,
       {
-        totalCount: allStudents.length,
-        students: allStudents,
+        totalCount: uniqueStudents.length,
+        students: uniqueStudents,
       },
       "All college students fetched successfully"
     )
   );
 });
+// ...existing code...
