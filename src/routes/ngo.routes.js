@@ -15,7 +15,7 @@ import {
 
 const router = Router();
 
-router.route("/get-all-ngos").get(verifyJWT, getAllNgos);
+router.route("/get-all-ngos").get(getAllNgos);
 
 // Event routes
 router
