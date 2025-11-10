@@ -27,12 +27,10 @@
  *       aim: "event purpose/description",
  *       eventDate: "YYYY-MM-DD"
  *     },
+ *     colleges: [full college objects array],
  *     attendance: [
  *       {
- *         studentId: "student_object_id",
- *         name: "Student Full Name",
- *         prn: "Student PRN/Roll Number",
- *         className: "Class Name",
+ *         ...full student object,
  *         attendanceMarkedAt: "ISO timestamp when attendance was marked"
  *       }
  *     ],
@@ -83,7 +81,6 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
   // Get event with populated college data
   const event = await Event.findById(eventId).populate({
     path: "colleges.collegeId",
-    select: "name",
   });
 
   if (!event) {
@@ -114,6 +111,7 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
             aim: event.aim,
             eventDate: event.eventDate,
           },
+          colleges: event.colleges.map((college) => college.collegeId),
           attendance: [],
           totalStudentsPresent: 0,
         },
@@ -125,9 +123,7 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
   // Fetch students directly using pre-organized IDs
   const attendedStudents = await Student.find({
     _id: { $in: allStudentIds },
-  })
-    .populate("classId", "className")
-    .select("name prn attendedEvents");
+  }).populate("classId", "className");
 
   // Format attendance data
   const attendanceData = attendedStudents.map((student) => {
@@ -136,10 +132,7 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
     );
 
     return {
-      studentId: student._id,
-      name: student.name,
-      prn: student.prn,
-      className: student.classId.className,
+      ...student.toObject(),
       attendanceMarkedAt: eventAttendance
         ? eventAttendance.attendanceMarkedAt
         : null,
@@ -156,6 +149,7 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
           aim: event.aim,
           eventDate: event.eventDate,
         },
+        colleges: event.colleges.map((college) => college.collegeId),
         attendance: attendanceData,
         totalStudentsPresent: attendanceData.length,
       },
