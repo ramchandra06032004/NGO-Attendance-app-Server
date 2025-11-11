@@ -28,7 +28,7 @@ const studentSchema = new mongoose.Schema(
         markedBy: {
           ngoId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "NGO",
+            ref: "Ngo",
           },
         },
       },

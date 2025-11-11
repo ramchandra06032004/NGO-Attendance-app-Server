@@ -11,6 +11,14 @@ export const getAllColleges = asyncHandler(async (req, res) => {
     populate: {
       path: "students",
       select: "-password -__v",
+      populate: {
+        path: "attendedEvents.eventId",
+        select: "aim description location eventDate",
+        populate: {
+          path: "createdBy",
+          select: "name",
+        },
+      },
     },
   });
 
