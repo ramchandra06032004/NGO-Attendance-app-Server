@@ -14,6 +14,12 @@ const collegeSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
+    logoUrl: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     email: {
       type: String,
       required: true,
