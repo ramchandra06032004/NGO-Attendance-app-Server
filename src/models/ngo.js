@@ -34,6 +34,11 @@ const ngoSchema = new mongoose.Schema(
       trim: true,
       match: [/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"],
     },
+    profileImage:{
+      type: String,
+      trim: true,
+      required: true,
+    },
     address: {
       type: String,
       required: true,

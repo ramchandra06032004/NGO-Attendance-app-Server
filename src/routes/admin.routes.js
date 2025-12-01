@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 import { addCollege, addNgo, updateCollege, updateNgo } from "../controllers/admin/index.js";
-
+import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
 
@@ -10,7 +10,11 @@ const router = Router();
 
 // Admin management routes (protected)
 router.route("/add-college").post(verifyJWT, addCollege);
-router.route("/add-ngo").post(verifyJWT, addNgo);
+router.route("/add-ngo").post(
+    verifyJWT,
+    upload.single("logo"), 
+    addNgo
+);
 router.route("/update-college").put(verifyJWT, updateCollege);
 router.route("/update-ngo").put(verifyJWT, updateNgo);
 
