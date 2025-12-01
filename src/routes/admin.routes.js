@@ -9,10 +9,10 @@ const router = Router();
 // All routes here require admin authentication
 
 // Admin management routes (protected)
-router.route("/add-college").post(verifyJWT, addCollege);
+router.route("/add-college").post(verifyJWT, upload.single("logo"), addCollege);
 router.route("/add-ngo").post(
     verifyJWT,
-    upload.single("logo"), 
+    upload.single("logo"),
     addNgo
 );
 router.route("/update-college").put(verifyJWT, updateCollege);
