@@ -4,6 +4,7 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export const getEvents = asyncHandler(async (req, res) => {
+  
   if (req.user.userType !== "ngo") {
     throw new ApiError(
       403,

@@ -11,6 +11,7 @@ import {
   markAttendance,
   getEventAttendanceForNGO,
   getEventAttendanceForCollege,
+  updateQrCode,
 } from "../controllers/attendence/index.js";
 
 const router = Router();
@@ -37,4 +38,6 @@ router
   .route("/event/:eventId/college/:collegeId/attendance")
   .get(verifyJWT, getEventAttendanceForCollege);
 
+
+router.route("/event/updateQrCode").post(verifyJWT,updateQrCode);
 export default router;

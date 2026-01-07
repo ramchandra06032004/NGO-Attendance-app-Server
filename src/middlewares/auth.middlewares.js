@@ -19,14 +19,16 @@ const getModelByUserType = (userType) => {
 };
 
 export const verifyJWT = asyncHandler(async (req, _, next) => {
+    
   try {
     let token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "").trim();
-
-    if (!token) {
-      throw new ApiError(401, "You are not authorized to access this resource");
-    }
+      
+      if (!token) {
+        throw new ApiError(401, "You are not authorized to access this resource");
+      }
+      
 
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 

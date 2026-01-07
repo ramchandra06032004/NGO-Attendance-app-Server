@@ -4,6 +4,7 @@ import { College } from "../../models/college.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
+import { generateQR } from "../../utils/generateQR/generateQR.js";
 
 export const addEvent = asyncHandler(async (req, res) => {
   if (req.user.userType !== "ngo") {
@@ -12,12 +13,18 @@ export const addEvent = asyncHandler(async (req, res) => {
 
   const ngoUser = req.user;
 
-  const { location, aim, description, images, eventDate  } =
+  // Extract coordinates from request body
+  const { location, aim, description, images, eventDate, coordinates } =
     req.body;
 
   // Missing fields check
   if (!location || !aim || !description || !eventDate)
     throw new ApiError(400, "Required fields are missing");
+
+  // Validate coordinates
+  if (!coordinates || !coordinates.latitude || !coordinates.longitude) {
+    throw new ApiError(400, "Event coordinates (latitude and longitude) are required");
+  }
 
   // Date validation
   const parsedDate = new Date(eventDate);
@@ -29,7 +36,7 @@ export const addEvent = asyncHandler(async (req, res) => {
 
   // String fields validation
   if (
-    [location, aim, description ].some(
+    [location, aim, description].some(
       (field) => typeof field !== "string" || !field.trim()
     )
   )
@@ -42,13 +49,23 @@ export const addEvent = asyncHandler(async (req, res) => {
   if (images && images.some((img) => typeof img !== "string" || !img.trim()))
     throw new ApiError(400, "Non-string element found in images array");
 
+  const qrCodeString = generateQR();
+
   const newEvent = await Event.create({
     location,
     aim,
     description,
     images: images || [],
     eventDate: parsedDate.toISOString(),
-    createdBy: ngoUser._id, // FIX: Set the createdBy field
+    coordinates: {
+      type: 'Point',
+      coordinates: [
+        parseFloat(coordinates.longitude),
+        parseFloat(coordinates.latitude)
+      ]
+    },
+    createdBy: ngoUser._id,
+    currAttendanceString: qrCodeString,
   });
 
   // add event id to NGO's events array

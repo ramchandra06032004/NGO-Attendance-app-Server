@@ -17,6 +17,18 @@ const eventSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    coordinates: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true,
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true
+      }
+    },
     images: [
       {
         type: String, // Store image URLs or file paths
@@ -26,6 +38,9 @@ const eventSchema = new mongoose.Schema(
     eventDate: {
       type: Date,
       required: true,
+    },
+    currAttendanceString: {
+      type: String,
     },
     colleges: [
       {
@@ -51,5 +66,5 @@ const eventSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+eventSchema.index({ coordinates: '2dsphere' });
 export const Event = mongoose.model("Event", eventSchema);

@@ -32,6 +32,8 @@ export const generateAccessAndRefreshToken = async (userId, userType) => {
 
     return { accessToken, refreshToken };
   } catch (error) {
+    console.log(error);
+    
     throw new ApiError(500, "Error generating tokens");
   }
 };

@@ -5,15 +5,17 @@ import { ApiError } from "../../utils/ApiError.js";
 import { Event } from "../../models/events.js";
 import { Student } from "../../models/student.js";
 import { College } from "../../models/college.js";
+import { getDistanceInMeters } from "../../utils/calculateDistance/calculateDistance.js";
+
 
 // UPDATED APPROACH: Mark attendance with college validation and event model update
 export const markAttendance = asyncHandler(async (req, res) => {
   // Authorization check
-  if (req.user.userType !== "ngo") {
-    throw new ApiError(403, "Access denied: Only NGOs can mark attendance");
-  }
+  // if (req.user.userType !== "ngo") {
+  //   throw new ApiError(403, "Access denied: Only NGOs can mark attendance");
+  // }
 
-  const { studentIds, eventId, collegeId } = req.body;
+  const { studentIds, eventId, collegeId, qrCodeString, studentLocation } = req.body;
   const ngoId = req.user._id;
 
   if (!eventId) {
@@ -21,6 +23,12 @@ export const markAttendance = asyncHandler(async (req, res) => {
   }
   if (!collegeId) {
     throw new ApiError(400, "College ID is required");
+  }
+  if (!qrCodeString) {
+    throw new ApiError(400, "QR Code string is required");
+  }
+  if (!studentLocation || !studentLocation.latitude || !studentLocation.longitude) {
+    throw new ApiError(400, "Student location (latitude and longitude) is required");
   }
 
   // Input validation
@@ -47,7 +55,6 @@ export const markAttendance = asyncHandler(async (req, res) => {
     );
   }
 
-  // Fetch the event and verify NGO ownership
   const event = await Event.findById(eventId);
   if (!event) {
     throw new ApiError(404, "Event not found");
@@ -57,6 +64,22 @@ export const markAttendance = asyncHandler(async (req, res) => {
     throw new ApiError(
       403,
       "You can only mark attendance for events you created"
+    );
+  }
+  if (event.currAttendanceString !== qrCodeString) {
+    throw new ApiError(400, "Invalid QR Code provided.");
+  }
+  const eventLon = event.coordinates.coordinates[0];
+  const eventLat = event.coordinates.coordinates[1];
+
+  const studentLat = parseFloat(studentLocation.latitude);
+  const studentLon = parseFloat(studentLocation.longitude);
+
+  const distance = getDistanceInMeters(eventLat, eventLon, studentLat, studentLon);
+  if (distance > 100) {
+    throw new ApiError(
+      400,
+      `Location mismatch. You are ${Math.round(distance)} meters away. Must be within 100 meters of the event.`
     );
   }
 
@@ -135,6 +158,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
                 eventId,
                 attendanceMarkedAt,
                 markedBy: { ngoId },
+                // Optional: You could save the location captured here too
               },
             },
           },
