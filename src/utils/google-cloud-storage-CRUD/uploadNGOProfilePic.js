@@ -1,35 +1,61 @@
-import storage from "./gcp-index.js";
-import path from "path";
+import { Storage } from "@google-cloud/storage";
 import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// 1. Setup Storage (Smart Mode)
+// We create a config object. If the key file exists, we add it. 
+// If not, we leave it empty and let Google try to find its own way (works on Cloud).
+const storageConfig = {
+  projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+};
+
+// Check if a key file sits in the root folder
+const keyPath = path.join(process.cwd(), "service-account-key.json");
+
+if (fs.existsSync(keyPath)) {
+  console.log("🔑 Found Key File locally. Using it.");
+  storageConfig.keyFilename = keyPath;
+} else {
+  console.log("☁️ No Key File found. Trying Default Credentials (Cloud Mode).");
+}
+
+const storage = new Storage(storageConfig);
+
 export const uploadNgoProfilePic = async (localFilePath) => {
-    try {
-        const bucketName = process.env.GCS_BUCKET_NAME;
-        console.log(bucketName);
-        if (!bucketName) {
-            console.error("GCS_BUCKET_NAME is missing in .env file");
-            return null;
-        }
-        const bucket = storage.bucket(bucketName);
+  try {
+    const bucketName = process.env.GOOGLE_CLOUD_BUCKET_NAME;
+    
+    if (!bucketName) throw new Error("Bucket name is missing in .env");
+    if (!localFilePath) return null;
 
-        if (!localFilePath) return null;
+    console.log(`🚀 Uploading to: ${bucketName}`);
 
-        const fileName = path.basename(localFilePath);
-        const destination = `profile-pic-ngo/${Date.now()}_${fileName}`;
+    const [file] = await storage.bucket(bucketName).upload(localFilePath, {
+      destination: `ngo-logos/${Date.now()}_${path.basename(localFilePath)}`,
+      public: true,
+      metadata: { contentType: 'image/jpeg' },
+    });
 
-        const [file] = await bucket.upload(localFilePath, {
-            destination: destination,
-            //public: true,
-            metadata: {
-                cacheControl: "public, max-age=31536000",
-            },
-        });
-        fs.unlinkSync(localFilePath);
-        return `https://storage.googleapis.com/${bucketName}/${destination}`;
-    } catch (error) {
-        if (fs.existsSync(localFilePath)) {
-            fs.unlinkSync(localFilePath);
-        }
-        console.error("Error uploading to GCS:", error);
-        return null;
+    console.log("✅ Upload Success!");
+
+    // Cleanup local file
+    try { fs.unlinkSync(localFilePath); } catch (e) {}
+
+    return `https://storage.googleapis.com/${bucketName}/${file.name}`;
+
+  } catch (error) {
+    console.error("❌ Cloud Upload Failed:", error.message);
+    
+    // Suggest the fix if it fails locally
+    if (error.message.includes("Could not load the default credentials")) {
+        console.error("💡 TIP: You are running locally without a Key File.");
+        console.error("   Run this in terminal: 'gcloud auth application-default login'");
     }
+
+    try { fs.unlinkSync(localFilePath); } catch (e) {}
+    return null;
+  }
 };
