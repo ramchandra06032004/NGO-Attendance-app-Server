@@ -35,7 +35,8 @@ export const login = asyncHandler(async (req, res) => {
   // Set cookie options
   const options = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    //secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     domain: process.env.NODE_ENV === "production" ? undefined : "localhost",
   };

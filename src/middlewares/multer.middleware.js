@@ -1,10 +1,11 @@
+
 import multer from "multer";
+import os from "os"; // <--- Import 'os' module
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // /tmp is the only writable directory in Google App Engine
-    // It also exists on your Mac, so this works for both local and cloud.
-    cb(null, '/tmp'); 
+    // ✅ FIX: Use os.tmpdir() to work on BOTH Windows and Cloud
+    cb(null, os.tmpdir()); 
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);

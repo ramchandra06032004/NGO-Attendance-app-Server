@@ -12,6 +12,11 @@ const router = Router();
 router.route("/add-college").post(verifyJWT, upload.single("logo"), addCollege);
 router.route("/add-ngo").post(
     verifyJWT,
+    (req, res, next) => {
+        // DEBUGGING: Check what Content-Type the server is actually receiving
+        //console.log("Incoming Content-Type:", req.headers['content-type']); 
+        next();
+    },
     upload.single("logo"),
     addNgo
 );
