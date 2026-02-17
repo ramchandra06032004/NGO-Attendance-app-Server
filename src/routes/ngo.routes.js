@@ -6,6 +6,7 @@ import {
   updateEvents,
   getAllNgos,
   removeEvent,
+  getRegisteredStudents,
 } from "../controllers/ngo/index.js";
 import {
   markAttendance,
@@ -36,5 +37,10 @@ router
 router
   .route("/event/:eventId/college/:collegeId/attendance")
   .get(verifyJWT, getEventAttendanceForCollege);
+
+// Route to get all registered students for an event
+router
+  .route("/events/:eventId/registered-students")
+  .get(verifyJWT, getRegisteredStudents);
 
 export default router;

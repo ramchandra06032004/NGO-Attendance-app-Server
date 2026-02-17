@@ -7,6 +7,7 @@ import adminRoutes from "./routes/admin.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import collegeRoutes from "./routes/college.routes.js";
 import ngoRoutes from "./routes/ngo.routes.js";
+import studentRoutes from "./routes/student.routes.js";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/college", collegeRoutes);
 app.use("/api/v1/ngo", ngoRoutes);
+app.use("/api/v1/student", studentRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

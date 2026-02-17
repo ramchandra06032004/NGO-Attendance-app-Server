@@ -7,17 +7,26 @@ import { generateAccessAndRefreshToken } from "./tokenGenerator.js";
 export const login = asyncHandler(async (req, res) => {
   const { email, password, userType } = req.body;
 
-  // Validate input
+  // Validate required fields
   if (!email || !password || !userType) {
-    throw new ApiError(400, "Email, password, and user type are required");
+    throw new ApiError(400, "Email, password, and userType are required");
   }
 
+  // Get the appropriate model based on userType
   const Model = getModelByUserType(userType);
 
-  // Find user by email
-  const user = await Model.findOne({ email });
-  if (!user) {
-    throw new ApiError(404, `${userType} not found with this email`);
+  // For students, search by PRN instead of email
+  let user;
+  if (userType.toLowerCase() === "student") {
+    user = await Model.findOne({ prn: email }); // email field contains PRN for students
+    if (!user) {
+      throw new ApiError(404, `Student not found with this PRN`);
+    }
+  } else {
+    user = await Model.findOne({ email });
+    if (!user) {
+      throw new ApiError(404, `${userType} not found with this email`);
+    }
   }
 
   // Check password (assuming all models have comparePassword method)

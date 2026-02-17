@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { Admin } from "../models/admin.js";
 import { College } from "../models/college.js";
 import { Ngo } from "../models/ngo.js";
+import { Student } from "../models/student.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -13,6 +14,8 @@ const getModelByUserType = (userType) => {
       return College;
     case "ngo":
       return Ngo;
+    case "student":
+      return Student;
     default:
       throw new ApiError(400, "Invalid user type");
   }
