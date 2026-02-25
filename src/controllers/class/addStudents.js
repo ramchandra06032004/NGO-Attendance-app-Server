@@ -3,6 +3,7 @@ import { Student } from "../../models/student.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
+import bcrypt from "bcrypt";
 
 const validateStringField = (field, fieldName, index) => {
   if (!field || typeof field !== "string" || !field.trim()) {
@@ -94,13 +95,21 @@ export const addStudents = asyncHandler(async (req, res) => {
     );
   }
 
-  // create students
-  const createdStudents = await Student.insertMany(
-    students.map((student) => ({
-      ...student,
-      classId,
-    }))
+  // Hash passwords before insertion (insertMany bypasses pre-save hooks)
+  const studentsWithHashedPasswords = await Promise.all(
+    students.map(async (student) => {
+      const password = student.password || "defaultPassword123";
+      const hashedPassword = await bcrypt.hash(password, 10);
+      return {
+        ...student,
+        password: hashedPassword,
+        classId,
+      };
+    })
   );
+
+  // create students
+  const createdStudents = await Student.insertMany(studentsWithHashedPasswords);
 
   // update class with new student IDs
   const studentIds = createdStudents.map((s) => s._id);

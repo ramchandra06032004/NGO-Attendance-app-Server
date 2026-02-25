@@ -142,7 +142,7 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
         _id: { $in: eventCollege.students },
       })
         .populate("classId", "className")
-        .select("name prn attendedEvents");
+        .select("name prn department attendedEvents");
 
       // Format student data with attendance info
       const studentData = students.map((student) => {
@@ -154,7 +154,8 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
           studentId: student._id,
           name: student.name,
           prn: student.prn,
-          className: student.classId.className,
+          department: student.department || "N/A",
+          className: student.classId?.className || "N/A",
           attendanceMarkedAt: eventAttendance
             ? eventAttendance.attendanceMarkedAt
             : null,
