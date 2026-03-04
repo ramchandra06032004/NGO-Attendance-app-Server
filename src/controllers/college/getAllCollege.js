@@ -13,7 +13,6 @@ export const getAllColleges = asyncHandler(async (req, res) => {
 
     const cached = await redisClient.get(cacheKey);
     if (cached) {
-      console.log("hit catch");
       const parsed = JSON.parse(cached);
       return res.status(200).json(
         new ApiResponse(
