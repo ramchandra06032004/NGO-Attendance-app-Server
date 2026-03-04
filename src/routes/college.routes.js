@@ -22,6 +22,7 @@ import { getEventAttendanceForCollege } from "../controllers/attendence/index.js
 const router = Router();
 
 router.route("/get-all-colleges").get(getAllColleges);
+router.route("/get-all-colleges/:collegeId").get(getAllColleges);
 
 // Class management
 router

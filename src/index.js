@@ -3,6 +3,7 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import connectDB from "./db/index.js";
+import redisClient from "./redis/redisClient.js";
 
 // Load environment variables
 dotenv.config({
@@ -18,14 +19,17 @@ const startServer = async () => {
 
     // Connect to database first
     await connectDB();
+    await redisClient.connect();
+
 
     // Start the server after successful database connection
-    app.listen(PORT, "0.0.0.0", () => {
+    app.listen(PORT, "0.0.0.0", async () => {
       console.log(`🚀 NGO Attendance Server is running on port ${PORT}`);
       console.log(`📱 Server configured for React Native app`);
       console.log(`🌐 Health check: http://localhost:${PORT}/api/health`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
       console.log("✅ Server started successfully!");
+      console.log("🔑 Redis connection established successfully!");
     });
 
     app.on("error", (err) => {

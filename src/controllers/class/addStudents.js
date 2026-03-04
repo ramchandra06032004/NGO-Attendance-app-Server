@@ -1,5 +1,6 @@
 import { Class } from "../../models/class.js";
 import { Student } from "../../models/student.js";
+import redisClient from "../../redis/redisClient.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
@@ -116,7 +117,9 @@ export const addStudents = asyncHandler(async (req, res) => {
   await Class.findByIdAndUpdate(classId, {
     $push: { students: { $each: studentIds } },
   });
-
+  // Invalidate Redis cache for this college
+  await redisClient.del(`college:${collegeUser._id}`);
+  
   res
     .status(201)
     .json(new ApiResponse(201, createdStudents, "Students added successfully"));
