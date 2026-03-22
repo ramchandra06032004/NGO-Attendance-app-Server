@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { Class } from "../../models/class.js";
 import { Student } from "../../models/student.js";
 import { ApiError } from "../../utils/ApiError.js";
@@ -29,41 +28,6 @@ export const updateStudentClass = asyncHandler(async (req, res) => {
   // student belongs to target class check
   if (classExists.students.includes(studentId))
     throw new ApiError(400, "Student already belongs to this class");
-
-  /*
-   * The below commented-out code uses a transaction session to ensure atomicity.
-   * Can use it if needed in future, but requires MongoDB replica set (don't really know what that is)
-   * If using the current commented-out code, ensure to comment out the non-session code below it.
-   */
-
-  // let updatedStudent = null;
-  // const session = await mongoose.startSession();
-
-  // await session.withTransaction(async () => {
-  //   const currentClass = await Class.findById(studentExists.classId);
-  //   if (currentClass) {
-  //     // remove student from current class
-  //     await Class.findByIdAndUpdate(
-  //       currentClass._id,
-  //       { $pull: { students: studentId } },
-  //       { session }
-  //     );
-  //   }
-
-  //   updatedStudent = await Student.findByIdAndUpdate(
-  //     studentId,
-  //     { $set: { classId: newClassId } },
-  //     { new: true, session }
-  //   );
-
-  //   await Class.findByIdAndUpdate(
-  //     newClassId,
-  //     { $push: { students: studentId } },
-  //     { session }
-  //   );
-  // });
-
-  // await session.endSession();
 
   const currentClass = await Class.findById(studentExists.classId);
   if (currentClass) {

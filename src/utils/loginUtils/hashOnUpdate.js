@@ -16,10 +16,7 @@ export const hashPasswordOnUpdate = async function (next) {
       } else {
         update.password = hashedPassword;
       }
-
-      console.log("🔐 Password hashed during update operation");
     } catch (error) {
-      console.error("❌ Error hashing password during update:", error);
       return next(error);
     }
   }

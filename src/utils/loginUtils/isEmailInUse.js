@@ -6,7 +6,6 @@ const isThisEmailInUse = async function (email) {
     if (user) return false;
     return true;
   } catch (error) {
-    console.log("Error inside isThisEmailInUse method", error.message);
     return false;
   }
 };

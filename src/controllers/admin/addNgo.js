@@ -5,11 +5,6 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { uploadNgoProfilePic } from "../../utils/google-cloud-storage-CRUD/uploadNGOProfilePic.js";
 
 export const addNgo = asyncHandler(async (req, res) => {
-  // // --- DEBUG LOGS START ---
-  // console.log("👉 User Type:", req.user?.userType);
-  // console.log("👉 Body Received:", req.body);
-  // console.log("👉 File Received:", req.file);
-  // // --- DEBUG LOGS END ---
   if (req.user.userType !== "admin") {
     throw new ApiError(403, "Only admin users can add NGOs");
   }

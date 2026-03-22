@@ -59,8 +59,6 @@ app.use((err, req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  console.log("Request Path:", req.path);
-
   if (req.path.startsWith("/api/")) {
     res.status(404).json({
       success: false,
@@ -71,7 +69,7 @@ app.use((req, res, next) => {
   }
 });
 
-app.use((req, res) => {
+app.use((_req, res) => {
   res.status(404).json({
     success: false,
     message:

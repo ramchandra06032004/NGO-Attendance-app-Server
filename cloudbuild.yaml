@@ -1,0 +1,51 @@
+steps:
+  # Build the Docker image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - build
+      - -t
+      - asia-south1-docker.pkg.dev/$PROJECT_ID/ngo-attendance/server:$COMMIT_SHA
+      - .
+
+  # Push to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - push
+      - asia-south1-docker.pkg.dev/$PROJECT_ID/ngo-attendance/server:$COMMIT_SHA
+
+  # Fetch secrets from Secret Manager
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        MONGODB_URI=$$(gcloud secrets versions access latest --secret="ngo-mongodb-uri")
+        REDIS_PASSWORD=$$(gcloud secrets versions access latest --secret="ngo-redis-password")
+        ACCESS_TOKEN_SECRET=$$(gcloud secrets versions access latest --secret="ngo-access-token-secret")
+        GOOGLE_CLOUD_PROJECT_ID=$$(gcloud secrets versions access latest --secret="ngo-gcp-project-id")
+        GOOGLE_CLOUD_BUCKET_NAME=$$(gcloud secrets versions access latest --secret="ngo-gcp-bucket-name")
+        PORT=8000
+
+        gcloud run deploy ngo-attendance-server \
+          --image=asia-south1-docker.pkg.dev/$PROJECT_ID/ngo-attendance/server:$COMMIT_SHA \
+          --region=asia-south1 \
+          --platform=managed \
+          --allow-unauthenticated \
+          --set-env-vars=NODE_ENV=production \
+          --set-env-vars=PORT=$$PORT \
+          --set-env-vars=MONGODB_URI=$$MONGODB_URI \
+          --set-env-vars=REDIS_PASSWORD=$$REDIS_PASSWORD \
+          --set-env-vars=ACCESS_TOKEN_SECRET=$$ACCESS_TOKEN_SECRET \
+          --set-env-vars=GOOGLE_CLOUD_PROJECT_ID=$$GOOGLE_CLOUD_PROJECT_ID \
+          --set-env-vars=GOOGLE_CLOUD_BUCKET_NAME=$$GOOGLE_CLOUD_BUCKET_NAME
+
+# Store images in Artifact Registry
+images:
+  - asia-south1-docker.pkg.dev/$PROJECT_ID/ngo-attendance/server:$COMMIT_SHA
+
+# Timeout for the entire build
+timeout: "1200s"
+
+# Required IAM permissions for Cloud Build service account
+options:
+  logging: CLOUD_LOGGING_ONLY

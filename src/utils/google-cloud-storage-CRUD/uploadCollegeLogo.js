@@ -56,8 +56,6 @@ export const uploadCollegeLogo = async (localFilePath) => {
     return `https://storage.googleapis.com/${bucketName}/${file.name}`;
 
   } catch (error) {
-    console.error("Cloud Upload Error (College):", error.message);
-
     // Clean up local temp file on error
     if (fs.existsSync(localFilePath)) {
       try {
