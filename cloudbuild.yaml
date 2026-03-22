@@ -24,20 +24,19 @@ steps:
         ACCESS_TOKEN_SECRET=$$(gcloud secrets versions access latest --secret="ngo-access-token-secret")
         GOOGLE_CLOUD_PROJECT_ID=$$(gcloud secrets versions access latest --secret="ngo-gcp-project-id")
         GOOGLE_CLOUD_BUCKET_NAME=$$(gcloud secrets versions access latest --secret="ngo-gcp-bucket-name")
-        PORT=8000
-
         gcloud run deploy ngo-attendance-server \
           --image=asia-south1-docker.pkg.dev/$PROJECT_ID/ngo-attendance/server:$COMMIT_SHA \
           --region=asia-south1 \
           --platform=managed \
           --allow-unauthenticated \
           --set-env-vars=NODE_ENV=production \
-          --set-env-vars=PORT=$$PORT \
           --set-env-vars=MONGODB_URI=$$MONGODB_URI \
           --set-env-vars=REDIS_PASSWORD=$$REDIS_PASSWORD \
           --set-env-vars=ACCESS_TOKEN_SECRET=$$ACCESS_TOKEN_SECRET \
           --set-env-vars=GOOGLE_CLOUD_PROJECT_ID=$$GOOGLE_CLOUD_PROJECT_ID \
-          --set-env-vars=GOOGLE_CLOUD_BUCKET_NAME=$$GOOGLE_CLOUD_BUCKET_NAME
+          --set-env-vars=GOOGLE_CLOUD_BUCKET_NAME=$$GOOGLE_CLOUD_BUCKET_NAME \
+          --set-env-vars=REFRESH_TOKEN_EXPIRY=10d \
+          --set-env-vars=COLLEGE_CACHE_TTL=600
 
 # Store images in Artifact Registry
 images:
