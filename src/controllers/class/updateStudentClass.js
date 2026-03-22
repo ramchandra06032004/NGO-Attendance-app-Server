@@ -3,6 +3,7 @@ import { Student } from "../../models/student.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
+import redisClient from "../../redis/redisClient.js";
 
 export const updateStudentClass = asyncHandler(async (req, res) => {
   if (req.user.userType !== "college")
@@ -44,6 +45,8 @@ export const updateStudentClass = asyncHandler(async (req, res) => {
   );
 
   await Class.findByIdAndUpdate(newClassId, { $push: { students: studentId } });
+
+  await redisClient.del(`college:${collegeUser._id}`);
 
   res
     .status(200)

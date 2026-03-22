@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/ApiError.js";
 import { Class } from "../../models/class.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import mongoose from "mongoose";
+import redisClient from "../../redis/redisClient.js";
 
 export const updateClass = asyncHandler(async (req, res) => {
   if (req.user == undefined || req.user.userType !== "college") {
@@ -46,6 +47,8 @@ export const updateClass = asyncHandler(async (req, res) => {
   if (!classToUpdate) {
     throw new ApiError(404, "Class not found or could not be updated");
   }
+
+  await redisClient.del(`college:${req.user._id}`);
 
   res
     .status(200)
