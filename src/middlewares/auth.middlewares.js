@@ -31,6 +31,7 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
       throw new ApiError(401, "You are not authorized to access this resource");
     }
 
+    
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     // Get user type from token (role field)
