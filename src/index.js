@@ -3,10 +3,12 @@ import app from "./app.js";
 import connectDB from "./db/index.js";
 import redisClient from "./redis/redisClient.js";
 
-// Load environment variables
-dotenv.config({
-  path: "./.env",
-});
+// Only load .env in development
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({
+    path: "./.env",
+  });
+}
 
 const PORT = process.env.PORT || 3000;
 
