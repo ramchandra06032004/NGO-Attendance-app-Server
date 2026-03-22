@@ -30,15 +30,7 @@ steps:
           --region=asia-south1 \
           --platform=managed \
           --allow-unauthenticated \
-          --set-env-vars=NODE_ENV=production \
-          --set-env-vars=MONGODB_URI=$$MONGODB_URI \
-          --set-env-vars=REDIS_PASSWORD=$$REDIS_PASSWORD \
-          --set-env-vars=ACCESS_TOKEN_SECRET=$$ACCESS_TOKEN_SECRET \
-          --set-env-vars=REFRESH_TOKEN_SECRET=$$REFRESH_TOKEN_SECRET \
-          --set-env-vars=GOOGLE_CLOUD_PROJECT_ID=$$GOOGLE_CLOUD_PROJECT_ID \
-          --set-env-vars=GOOGLE_CLOUD_BUCKET_NAME=$$GOOGLE_CLOUD_BUCKET_NAME \
-          --set-env-vars=REFRESH_TOKEN_EXPIRY=10d \
-          --set-env-vars=COLLEGE_CACHE_TTL=600
+          --set-env-vars="NODE_ENV=production,MONGODB_URI=$$MONGODB_URI,REDIS_PASSWORD=$$REDIS_PASSWORD,ACCESS_TOKEN_SECRET=$$ACCESS_TOKEN_SECRET,REFRESH_TOKEN_SECRET=$$REFRESH_TOKEN_SECRET,GOOGLE_CLOUD_PROJECT_ID=$$GOOGLE_CLOUD_PROJECT_ID,GOOGLE_CLOUD_BUCKET_NAME=$$GOOGLE_CLOUD_BUCKET_NAME,REFRESH_TOKEN_EXPIRY=10d,COLLEGE_CACHE_TTL=600"
 
 # Store images in Artifact Registry
 images:
