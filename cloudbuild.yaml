@@ -22,6 +22,7 @@ steps:
         MONGODB_URI=$$(gcloud secrets versions access latest --secret="ngo-mongodb-uri")
         REDIS_PASSWORD=$$(gcloud secrets versions access latest --secret="ngo-redis-password")
         ACCESS_TOKEN_SECRET=$$(gcloud secrets versions access latest --secret="ngo-access-token-secret")
+        REFRESH_TOKEN_SECRET=$$(gcloud secrets versions access latest --secret="ngo-refresh-token-secret")
         GOOGLE_CLOUD_PROJECT_ID=$$(gcloud secrets versions access latest --secret="ngo-gcp-project-id")
         GOOGLE_CLOUD_BUCKET_NAME=$$(gcloud secrets versions access latest --secret="ngo-gcp-bucket-name")
         gcloud run deploy ngo-attendance-server \
@@ -33,6 +34,7 @@ steps:
           --set-env-vars=MONGODB_URI=$$MONGODB_URI \
           --set-env-vars=REDIS_PASSWORD=$$REDIS_PASSWORD \
           --set-env-vars=ACCESS_TOKEN_SECRET=$$ACCESS_TOKEN_SECRET \
+          --set-env-vars=REFRESH_TOKEN_SECRET=$$REFRESH_TOKEN_SECRET \
           --set-env-vars=GOOGLE_CLOUD_PROJECT_ID=$$GOOGLE_CLOUD_PROJECT_ID \
           --set-env-vars=GOOGLE_CLOUD_BUCKET_NAME=$$GOOGLE_CLOUD_BUCKET_NAME \
           --set-env-vars=REFRESH_TOKEN_EXPIRY=10d \
