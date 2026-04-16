@@ -161,7 +161,9 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
           spocName: event.spocName,
           spocContact: event.spocContact,
         },
-        colleges: event.colleges.map((college) => college.collegeId),
+        colleges: event.colleges
+          .map((college) => college.collegeId)
+          .filter((college) => college !== null),
         attendance: attendanceData,
         totalStudentsPresent: attendanceData.length,
       },
