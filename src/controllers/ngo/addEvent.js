@@ -12,24 +12,29 @@ export const addEvent = asyncHandler(async (req, res) => {
 
   const ngoUser = req.user;
 
-  const { location, aim, description, images, eventDate  } =
+  const { location, aim, description, images, startDate, endDate, startTime, endTime, spocName, spocContact } =
     req.body;
 
   // Missing fields check
-  if (!location || !aim || !description || !eventDate)
+  if (!location || !aim || !description || !startDate || !endDate || !startTime || !endTime || !spocName || !spocContact)
     throw new ApiError(400, "Required fields are missing");
 
   // Date validation
-  const parsedDate = new Date(eventDate);
-  if (isNaN(parsedDate.getTime()))
-    throw new ApiError(400, "Invalid date format for eventDate");
+  const parsedStartDate = new Date(startDate);
+  const parsedEndDate = new Date(endDate);
 
-  if (parsedDate < new Date())
-    throw new ApiError(400, "Event date cannot be in the past");
+  if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime()))
+    throw new ApiError(400, "Invalid date format for startDate or endDate");
+
+  if (parsedStartDate < new Date().setHours(0, 0, 0, 0))
+    throw new ApiError(400, "Event start date cannot be in the past");
+
+  if (parsedEndDate < parsedStartDate)
+    throw new ApiError(400, "End date cannot be before start date");
 
   // String fields validation
   if (
-    [location, aim, description ].some(
+    [location, aim, description, startTime, endTime, spocName, spocContact].some(
       (field) => typeof field !== "string" || !field.trim()
     )
   )
@@ -47,8 +52,14 @@ export const addEvent = asyncHandler(async (req, res) => {
     aim,
     description,
     images: images || [],
-    eventDate: parsedDate.toISOString(),
-    createdBy: ngoUser._id, // FIX: Set the createdBy field
+    eventDate: parsedStartDate.toISOString(), // Legacy support
+    startDate: parsedStartDate,
+    endDate: parsedEndDate,
+    startTime,
+    endTime,
+    spocName,
+    spocContact,
+    createdBy: ngoUser._id,
   });
 
   // add event id to NGO's events array

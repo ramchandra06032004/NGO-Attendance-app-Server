@@ -15,6 +15,12 @@ export const updateEvents = asyncHandler(async (req, res) => {
     description,
     images,
     eventDate,
+    startDate,
+    endDate,
+    startTime,
+    endTime,
+    spocName,
+    spocContact,
     collegeName,
     eventId,
   } = req.body;
@@ -35,6 +41,12 @@ export const updateEvents = asyncHandler(async (req, res) => {
     !description &&
     !images &&
     !eventDate &&
+    !startDate &&
+    !endDate &&
+    !startTime &&
+    !endTime &&
+    !spocName &&
+    !spocContact &&
     !collegeName
   ) {
     throw new ApiError(400, "At least one field is required to update");
@@ -60,6 +72,12 @@ export const updateEvents = asyncHandler(async (req, res) => {
     description: description || event.description,
     images: images || event.images,
     eventDate: eventDate || event.eventDate,
+    startDate: startDate || event.startDate,
+    endDate: endDate || event.endDate,
+    startTime: startTime || event.startTime,
+    endTime: endTime || event.endTime,
+    spocName: spocName || event.spocName,
+    spocContact: spocContact || event.spocContact,
     collegeName: collegeName || event.collegeName,
   });
   await event.save();

@@ -60,6 +60,20 @@ export const markAttendance = asyncHandler(async (req, res) => {
     );
   }
 
+  // Prevent marking attendance before start date
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0); // Reset time for comparison
+
+  const eventStartDate = new Date(event.startDate || event.eventDate);
+  eventStartDate.setHours(0, 0, 0, 0);
+
+  if (currentDate < eventStartDate) {
+    throw new ApiError(
+      400,
+      `Attendance marking has not started yet. You can start marking from ${eventStartDate.toLocaleDateString()}.`
+    );
+  }
+
   // Verify college exists
   const college = await College.findById(collegeId).populate({
     path: "classes",

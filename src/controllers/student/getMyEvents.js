@@ -10,7 +10,7 @@ export const getMyEvents = asyncHandler(async (req, res) => {
     // Find the student with populated attendedEvents
     const student = await Student.findById(studentId).populate(
         "attendedEvents.eventId",
-        "aim location description eventDate"
+        "aim location description eventDate startDate endDate startTime endTime spocName spocContact"
     );
 
     if (!student) {

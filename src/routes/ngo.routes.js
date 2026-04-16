@@ -13,6 +13,7 @@ import {
   getEventAttendanceForNGO,
   getEventAttendanceForCollege,
 } from "../controllers/attendence/index.js";
+import { addVolunteers } from "../controllers/ngo/index.js";
 
 const router = Router();
 
@@ -42,5 +43,8 @@ router
 router
   .route("/events/:eventId/registered-students")
   .get(verifyJWT, getRegisteredStudents);
+
+// Route to add volunteers directly
+router.route("/volunteers").post(verifyJWT, addVolunteers);
 
 export default router;

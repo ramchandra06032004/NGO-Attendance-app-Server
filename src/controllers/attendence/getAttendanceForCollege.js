@@ -117,9 +117,13 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
 
   if (finalCollegeId) {
     // Find specific college in event data
-    const eventCollege = event.colleges.find(
-      (college) => college.collegeId._id.toString() === finalCollegeId
-    );
+    const eventCollege = event.colleges.find((college) => {
+      if (!college.collegeId) return false;
+      
+      // If collegeId is populated (is an object), use ._id
+      const idToCheck = college.collegeId._id ? college.collegeId._id.toString() : college.collegeId.toString();
+      return idToCheck === finalCollegeId;
+    });
 
     if (!eventCollege) {
       // College exists but no attendance marked yet
@@ -182,6 +186,12 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
           location: event.location,
           aim: event.aim,
           eventDate: event.eventDate,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          startTime: event.startTime,
+          endTime: event.endTime,
+          spocName: event.spocName,
+          spocContact: event.spocContact,
           createdBy: event.createdBy,
         },
         attendance: attendanceData,

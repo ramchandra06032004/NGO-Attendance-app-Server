@@ -69,7 +69,10 @@ export const getAllColleges = asyncHandler(async (req, res) => {
   }
 
   // No collegeId — return all colleges without sensitive fields, classes empty
-  const colleges = await College.find({}).select(
+  const colleges = await College.find({
+    isDummyCollege: { $ne: true },
+    name: { $not: / volunteers$/i }
+  }).select(
     "-password -refreshToken -__v -classes"
   );
 

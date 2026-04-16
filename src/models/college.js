@@ -49,6 +49,10 @@ const collegeSchema = new mongoose.Schema(
     refreshToken: {
       type: String,
     },
+    isDummyCollege: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

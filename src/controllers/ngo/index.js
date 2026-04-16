@@ -4,3 +4,4 @@ export { updateEvents } from "./updateEvents.js";
 export { getAllNgos } from "./getAllNgos.js";
 export { getRegisteredStudents } from "./getRegisteredStudents.js";
 export { removeEvent } from "./removeEvent.js";
+export { addVolunteers } from "./addVolunteers.js";
