@@ -7,6 +7,11 @@ import {
   getAllNgos,
   removeEvent,
   getRegisteredStudents,
+  createInternship,
+  getNgoInternships,
+  getInternshipApplicants,
+  updateApplicantStatus,
+  getInternshipWorkLogs,
 } from "../controllers/ngo/index.js";
 import {
   markAttendance,
@@ -47,4 +52,24 @@ router
 // Route to add volunteers directly
 router.route("/volunteers").post(verifyJWT, addVolunteers);
 
+// ─── Internship Routes ───────────────────────────────────────────────────────
+router
+  .route("/internships")
+  .get(verifyJWT, getNgoInternships)
+  .post(verifyJWT, createInternship);
+
+router
+  .route("/internships/:internshipId/applicants")
+  .get(verifyJWT, getInternshipApplicants);
+
+router
+  .route("/internships/:internshipId/applicants/:studentId")
+  .patch(verifyJWT, updateApplicantStatus);
+
+router
+  .route("/internships/:internshipId/applicants/:studentId/work-logs")
+  .get(verifyJWT, getInternshipWorkLogs);
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default router;
+
