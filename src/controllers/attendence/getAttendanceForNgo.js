@@ -100,6 +100,9 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
     allStudentIds.push(...college.students);
   });
 
+  // Optional: filter by a specific attendance date (YYYY-MM-DD)
+  const filterDate = req.query.date || null;
+
   if (allStudentIds.length === 0) {
     return res.status(200).json(
       new ApiResponse(
@@ -120,6 +123,7 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
           colleges: event.colleges.map((college) => college.collegeId),
           attendance: [],
           totalStudentsPresent: 0,
+          filterDate,
         },
         "No attendance found for this event"
       )
@@ -131,14 +135,19 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
     _id: { $in: allStudentIds },
   }).populate("classId", "className");
 
-  // Format attendance data
+  // Format attendance data with optional date filtering
   const attendanceData = attendedStudents.map((student) => {
-    const eventAttendance = student.attendedEvents.find(
-      (att) => att.eventId.toString() === eventId
-    );
+    const eventAttendance = student.attendedEvents.find((att) => {
+      if (att.eventId.toString() !== eventId) return false;
+      if (filterDate) {
+        return att.attendanceDate === filterDate;
+      }
+      return true; // no date filter — return any record for this event
+    });
 
     return {
       ...student.toObject(),
+      attendanceDate: eventAttendance?.attendanceDate || null,
       attendanceMarkedAt: eventAttendance
         ? eventAttendance.attendanceMarkedAt
         : null,

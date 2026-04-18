@@ -6,14 +6,23 @@ import { Event } from "../../models/events.js";
 import { Student } from "../../models/student.js";
 import { College } from "../../models/college.js";
 
-// UPDATED APPROACH: Mark attendance with college validation and event model update
+// Helper: convert a Date or date-string to a "YYYY-MM-DD" string in local time
+function toDateString(date) {
+  const d = new Date(date);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+// Mark attendance with multi-day support and college validation
 export const markAttendance = asyncHandler(async (req, res) => {
   // Authorization check
   if (req.user.userType !== "ngo") {
     throw new ApiError(403, "Access denied: Only NGOs can mark attendance");
   }
 
-  const { studentIds, eventId, collegeId } = req.body;
+  const { studentIds, eventId, collegeId, attendanceDate } = req.body;
   const ngoId = req.user._id;
 
   if (!eventId) {
@@ -60,19 +69,63 @@ export const markAttendance = asyncHandler(async (req, res) => {
     );
   }
 
-  // Prevent marking attendance before start date
-  const currentDate = new Date();
-  currentDate.setHours(0, 0, 0, 0); // Reset time for comparison
+  // ── Date validation ────────────────────────────────────────────────────────
+  const eventStart = new Date(event.startDate || event.eventDate);
+  eventStart.setHours(0, 0, 0, 0);
 
-  const eventStartDate = new Date(event.startDate || event.eventDate);
-  eventStartDate.setHours(0, 0, 0, 0);
+  const eventEnd = new Date(event.endDate || event.startDate || event.eventDate);
+  eventEnd.setHours(23, 59, 59, 999);
 
-  if (currentDate < eventStartDate) {
-    throw new ApiError(
-      400,
-      `Attendance marking has not started yet. You can start marking from ${eventStartDate.toLocaleDateString()}.`
-    );
+  // Determine which date we are marking for
+  let markDate; // will be a "YYYY-MM-DD" string
+  if (attendanceDate) {
+    const parsed = new Date(attendanceDate);
+    if (isNaN(parsed.getTime())) {
+      throw new ApiError(400, "Invalid attendanceDate format. Use YYYY-MM-DD.");
+    }
+    parsed.setHours(0, 0, 0, 0);
+
+    // Must be within the event schedule
+    if (parsed < eventStart || parsed > eventEnd) {
+      throw new ApiError(
+        400,
+        `Attendance can only be marked for dates within the event schedule (${toDateString(eventStart)} to ${toDateString(eventEnd)}).`
+      );
+    }
+
+    // Must not be in the future
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (parsed > today) {
+      throw new ApiError(
+        400,
+        `Attendance cannot be marked for a future date (${toDateString(parsed)}).`
+      );
+    }
+
+    markDate = toDateString(parsed);
+  } else {
+    // Fallback: use today's date (single-day / legacy support)
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    if (currentDate < eventStart) {
+      throw new ApiError(
+        400,
+        `Attendance marking has not started yet. You can start marking from ${toDateString(eventStart)}.`
+      );
+    }
+
+    if (currentDate > eventEnd) {
+      throw new ApiError(
+        400,
+        `Attendance marking has ended. The event ran from ${toDateString(eventStart)} to ${toDateString(eventEnd)}.`
+      );
+    }
+
+    markDate = toDateString(currentDate);
   }
+  // ──────────────────────────────────────────────────────────────────────────
 
   // Verify college exists
   const college = await College.findById(collegeId).populate({
@@ -106,7 +159,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
     );
   }
 
-  // Fetch students - simple and fast
+  // Fetch students
   const students = await Student.find({
     _id: { $in: studentIds },
   });
@@ -117,7 +170,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
     throw new ApiError(404, `Students not found: ${missingIds.join(", ")}`);
   }
 
-  // Prepare bulk operations for better performance
+  // Prepare bulk operations
   const bulkOps = [];
   const attendanceMarkedAt = new Date();
   const attendanceResults = {
@@ -127,10 +180,16 @@ export const markAttendance = asyncHandler(async (req, res) => {
   };
 
   for (const student of students) {
-    // Check if attendance for this event is already marked
-    const alreadyMarked = student.attendedEvents.some(
-      (attendedEvent) => attendedEvent.eventId.toString() === eventId
-    );
+    // Check if attendance for this specific event day is already marked
+    const alreadyMarked = student.attendedEvents.some((attendedEvent) => {
+      if (attendedEvent.eventId.toString() !== eventId) return false;
+      // If this is a multi-day event and both records have attendanceDate, compare dates
+      if (attendedEvent.attendanceDate && markDate) {
+        return attendedEvent.attendanceDate === markDate;
+      }
+      // Legacy single-day: if no attendanceDate recorded, treat as already marked for that event
+      return !attendedEvent.attendanceDate;
+    });
 
     if (alreadyMarked) {
       attendanceResults.alreadyMarked.push({
@@ -139,7 +198,6 @@ export const markAttendance = asyncHandler(async (req, res) => {
         prn: student.prn,
       });
     } else {
-      // Add to bulk operations
       bulkOps.push({
         updateOne: {
           filter: { _id: student._id },
@@ -147,6 +205,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
             $push: {
               attendedEvents: {
                 eventId,
+                attendanceDate: markDate,
                 attendanceMarkedAt,
                 markedBy: { ngoId },
               },
@@ -163,14 +222,13 @@ export const markAttendance = asyncHandler(async (req, res) => {
     }
   }
 
-  // Execute bulk operations for better performance
+  // Execute bulk operations
   if (bulkOps.length > 0) {
     await Student.bulkWrite(bulkOps);
   }
 
-  // Update Event model with college and student information
+  // Update Event model with college and student information (distinct list across all days)
   if (attendanceResults.marked.length > 0) {
-    // Check if this college already exists in the event
     const existingCollegeIndex = event.colleges.findIndex(
       (college) => college.collegeId.toString() === collegeId
     );
@@ -180,7 +238,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
     );
 
     if (existingCollegeIndex !== -1) {
-      // College exists, add new students to the existing array (avoid duplicates)
+      // College exists; add new students to the set (avoid duplicates across days)
       const existingStudentIds = event.colleges[
         existingCollegeIndex
       ].students.map((id) => id.toString());
@@ -199,7 +257,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
         });
       }
     } else {
-      // College doesn't exist, create new college entry
+      // New college entry
       await Event.findByIdAndUpdate(eventId, {
         $push: {
           colleges: {
@@ -216,6 +274,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
     eventId,
     collegeId,
     collegeName: college.name,
+    attendanceDate: markDate,
     totalStudents: studentIds.length,
     newlyMarked: attendanceResults.marked.length,
     alreadyMarked: attendanceResults.alreadyMarked.length,
@@ -223,7 +282,7 @@ export const markAttendance = asyncHandler(async (req, res) => {
     markedAt: attendanceMarkedAt,
   };
 
-  const message = `Attendance processed for ${college.name}: ${attendanceResults.marked.length} newly marked, ${attendanceResults.alreadyMarked.length} already marked`;
+  const message = `Attendance processed for ${college.name} on ${markDate}: ${attendanceResults.marked.length} newly marked, ${attendanceResults.alreadyMarked.length} already marked`;
 
   return res.status(200).json(new ApiResponse(200, responseData, message));
 });
