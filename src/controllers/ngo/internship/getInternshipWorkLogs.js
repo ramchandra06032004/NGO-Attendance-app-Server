@@ -27,6 +27,10 @@ export const getInternshipWorkLogs = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Student not found in this internship");
   }
 
+  const startDate = new Date(internship.startDate);
+  const endDate = new Date(internship.endDate);
+  const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
   const workLogs = (applicant.workLogs || []).sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
@@ -48,6 +52,8 @@ export const getInternshipWorkLogs = asyncHandler(async (req, res) => {
           domain: internship.domain,
           startDate: internship.startDate,
           endDate: internship.endDate,
+          totalDays,
+          allowLateSubmissions: internship.allowLateSubmissions,
         },
         status: applicant.status,
         workLogs,

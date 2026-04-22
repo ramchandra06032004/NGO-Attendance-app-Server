@@ -37,9 +37,9 @@ export const submitWorkLog = asyncHandler(async (req, res) => {
     );
   }
 
-  // Check if internship is still active
-  if (new Date() > internship.endDate) {
-    throw new ApiError(400, "This internship has already ended");
+  // Check if internship is still active or late submissions are allowed
+  if (new Date() > internship.endDate && !internship.allowLateSubmissions) {
+    throw new ApiError(400, "This internship has already ended and late submissions are disabled");
   }
 
   // Prevent duplicate log for same date

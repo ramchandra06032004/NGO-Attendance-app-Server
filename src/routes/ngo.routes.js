@@ -12,6 +12,7 @@ import {
   getInternshipApplicants,
   updateApplicantStatus,
   getInternshipWorkLogs,
+  updateInternshipSettings,
 } from "../controllers/ngo/index.js";
 import {
   markAttendance,
@@ -69,6 +70,10 @@ router
 router
   .route("/internships/:internshipId/applicants/:studentId/work-logs")
   .get(verifyJWT, getInternshipWorkLogs);
+
+router
+  .route("/internships/:internshipId/update-settings")
+  .patch(verifyJWT, updateInternshipSettings);
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default router;

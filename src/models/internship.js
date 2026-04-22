@@ -95,6 +95,10 @@ const internshipSchema = new mongoose.Schema(
       ref: "Ngo",
       required: true,
     },
+    allowLateSubmissions: {
+      type: Boolean,
+      default: false,
+    },
     applicants: [applicantSchema],
   },
   { timestamps: true }

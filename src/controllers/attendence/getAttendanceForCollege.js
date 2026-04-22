@@ -146,14 +146,30 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
         .select("name prn department attendedEvents");
 
       const studentData = students.map((student) => {
-        // Find the matching attendance record, optionally filtered by date
-        const eventAttendance = student.attendedEvents.find((att) => {
+        // Find ALL matching attendance records for this event
+        const matchingRecords = student.attendedEvents.filter((att) => {
           if (att.eventId.toString() !== eventId) return false;
           if (filterDate) {
-            return att.attendanceDate === filterDate;
+            if (att.attendanceDate === filterDate) return true;
+            // Legacy single-day fallback
+            if (!att.attendanceDate) {
+              const start = event.startDate ? new Date(event.startDate) : new Date(event.eventDate);
+              const end = event.endDate ? new Date(event.endDate) : start;
+              if (start.getTime() === end.getTime()) {
+                const yyyy = start.getUTCFullYear();
+                const mm = String(start.getUTCMonth() + 1).padStart(2, "0");
+                const dd = String(start.getUTCDate()).padStart(2, "0");
+                const evDateStr = `${yyyy}-${mm}-${dd}`;
+                if (evDateStr === filterDate) return true;
+              }
+            }
+            return false;
           }
-          return true; // no date filter — return any record for this event
+          return true; // no date filter — return all records for this event
         });
+
+        // Current status for the primary view (backward compatibility)
+        const principalRecord = matchingRecords[0] || null;
 
         return {
           studentId: student._id,
@@ -161,10 +177,12 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
           prn: student.prn,
           department: student.department || "N/A",
           className: student.classId?.className || "N/A",
-          attendanceDate: eventAttendance?.attendanceDate || null,
-          attendanceMarkedAt: eventAttendance
-            ? eventAttendance.attendanceMarkedAt
-            : null,
+          attendanceDate: principalRecord?.attendanceDate || null,
+          attendanceMarkedAt: principalRecord?.attendanceMarkedAt || null,
+          attendanceRecords: matchingRecords.map(r => ({
+            attendanceDate: r.attendanceDate,
+            attendanceMarkedAt: r.attendanceMarkedAt
+          }))
         };
       });
 

@@ -19,6 +19,10 @@ export const getInternshipApplicants = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Internship not found");
   }
 
+  const startDate = new Date(internship.startDate);
+  const endDate = new Date(internship.endDate);
+  const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
   const applicants = internship.applicants.map((applicant) => ({
     _id: applicant._id,
     studentId: applicant.studentId?._id,
@@ -29,6 +33,7 @@ export const getInternshipApplicants = asyncHandler(async (req, res) => {
     status: applicant.status,
     appliedAt: applicant.appliedAt,
     workLogsCount: applicant.workLogs?.length || 0,
+    isCompleted: applicant.status === "accepted" && (applicant.workLogs?.length || 0) >= totalDays,
   }));
 
   return res.status(200).json(
@@ -42,6 +47,8 @@ export const getInternshipApplicants = asyncHandler(async (req, res) => {
           startDate: internship.startDate,
           endDate: internship.endDate,
           totalSlots: internship.totalSlots,
+          totalDays,
+          allowLateSubmissions: internship.allowLateSubmissions,
         },
         applicants,
       },

@@ -20,8 +20,12 @@ export const getMyInternships = asyncHandler(async (req, res) => {
       (a) => a.studentId.toString() === studentId.toString()
     );
 
+    const startDate = new Date(internship.startDate);
+    const endDate = new Date(internship.endDate);
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    
     const isCompleted =
-      applicant?.status === "accepted" && internship.endDate < now;
+      applicant?.status === "accepted" && (applicant?.workLogs?.length || 0) >= totalDays;
 
     return {
       _id: internship._id,
@@ -38,6 +42,8 @@ export const getMyInternships = asyncHandler(async (req, res) => {
       applicationStatus: applicant?.status || "pending",
       appliedAt: applicant?.appliedAt,
       isCompleted,
+      totalDays,
+      allowLateSubmissions: internship.allowLateSubmissions,
       workLogs: applicant?.workLogs || [],
       workLogsCount: applicant?.workLogs?.length || 0,
     };
