@@ -65,7 +65,7 @@ import { Student } from "../../models/student.js";
 import { College } from "../../models/college.js";
 
 export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
-  if (req.user.userType !== "college" && req.user.userType !== "ngo") {
+  if (req.user.userType !== "college" && req.user.userType !== "ngo" && req.user.userType !== "branch_admin") {
     throw new ApiError(
       403,
       "Access denied: Only colleges and NGOs can access this endpoint"
@@ -89,7 +89,7 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
   let finalCollegeId;
   if (userType === "college") {
     finalCollegeId = userId.toString();
-  } else if (userType === "ngo") {
+  } else if (userType === "ngo" || userType === "branch_admin") {
     if (!collegeId) {
       throw new ApiError(400, "College ID is required for NGO users");
     }

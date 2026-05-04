@@ -18,7 +18,7 @@ function toDateString(date) {
 // Mark attendance with multi-day support and college validation
 export const markAttendance = asyncHandler(async (req, res) => {
   // Authorization check
-  if (req.user.userType !== "ngo") {
+  if (req.user.userType !== "ngo" && req.user.userType !== "branch_admin") {
     throw new ApiError(403, "Access denied: Only NGOs can mark attendance");
   }
 
@@ -62,7 +62,12 @@ export const markAttendance = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Event not found");
   }
 
-  if (event.createdBy.toString() !== ngoId.toString()) {
+  const isBranchAdmin = req.user.userType === "branch_admin";
+  const isOwner = isBranchAdmin 
+    ? event.branchId?.toString() === req.user._id.toString()
+    : event.createdBy.toString() === req.user._id.toString();
+
+  if (!isOwner) {
     throw new ApiError(
       403,
       "You can only mark attendance for events you created"
@@ -207,7 +212,10 @@ export const markAttendance = asyncHandler(async (req, res) => {
                 eventId,
                 attendanceDate: markDate,
                 attendanceMarkedAt,
-                markedBy: { ngoId },
+                markedBy: {
+                  ngoId: req.user.userType === "branch_admin" ? req.user.ngoId : req.user._id,
+                  branchId: req.user.userType === "branch_admin" ? req.user._id : undefined,
+                },
               },
             },
           },

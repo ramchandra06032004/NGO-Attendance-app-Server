@@ -4,9 +4,12 @@ import { ApiResponse } from "../../../utils/ApiResponse.js";
 import { Internship } from "../../../models/internship.js";
 
 export const createInternship = asyncHandler(async (req, res) => {
+  // Only NGO Super Admin can create internships
   if (req.user.userType?.toLowerCase() !== "ngo") {
-    throw new ApiError(403, "Access denied: Only NGOs can create internships");
+    throw new ApiError(403, "Access denied: Only NGO Super Admins can create internships");
   }
+
+  const ngoId = req.user._id;
 
   const {
     title,
@@ -61,7 +64,9 @@ export const createInternship = asyncHandler(async (req, res) => {
     endDate: parsedEndDate,
     spocName,
     spocContact,
-    createdBy: req.user._id,
+    createdBy: ngoId,
+    // null = NGO-wide (visible to all branches); a specific id = branch-only
+    branchId: req.body.branchId || null,
   });
 
   return res

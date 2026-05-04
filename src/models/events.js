@@ -74,6 +74,10 @@ const eventSchema = new mongoose.Schema(
       ref: "Ngo",
       required: true,
     },
+    branchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Branch",
+    },
   },
   { timestamps: true }
 );

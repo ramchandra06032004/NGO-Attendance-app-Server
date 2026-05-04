@@ -39,6 +39,10 @@ const studentSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Ngo",
           },
+          branchId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Branch",
+          },
         },
       },
     ],

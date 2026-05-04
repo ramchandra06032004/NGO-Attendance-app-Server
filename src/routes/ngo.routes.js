@@ -20,10 +20,38 @@ import {
   getEventAttendanceForCollege,
 } from "../controllers/attendence/index.js";
 import { addVolunteers } from "../controllers/ngo/index.js";
+import {
+  createBranch,
+  getAllBranches,
+  getBranchDetails,
+  updateBranch,
+  deactivateBranch,
+  resetBranchPassword,
+} from "../controllers/ngo/branch.controller.js";
+import { getBranchEvents, getBranchInternships } from "../controllers/ngo/getBranchActivity.js";
 
 const router = Router();
 
 router.route("/get-all-ngos").get(getAllNgos);
+
+// Branch routes
+router.route("/branches")
+  .post(verifyJWT, createBranch)
+  .get(verifyJWT, getAllBranches);
+
+router.route("/branches/:branch_id")
+  .get(verifyJWT, getBranchDetails)
+  .put(verifyJWT, updateBranch);
+
+router.route("/branches/:branch_id/deactivate")
+  .patch(verifyJWT, deactivateBranch);
+
+router.route("/branches/:branch_id/reset-password")
+  .post(verifyJWT, resetBranchPassword);
+
+// Branch activity routes (for Super Admin drill-down)
+router.route("/branches/:branch_id/events").get(verifyJWT, getBranchEvents);
+router.route("/branches/:branch_id/internships").get(verifyJWT, getBranchInternships);
 
 // Event routes
 router

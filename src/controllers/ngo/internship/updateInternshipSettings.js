@@ -4,7 +4,14 @@ import { ApiResponse } from "../../../utils/ApiResponse.js";
 import { Internship } from "../../../models/internship.js";
 
 export const updateInternshipSettings = asyncHandler(async (req, res) => {
-  if (req.user.userType?.toLowerCase() !== "ngo") {
+  const userType = req.user.userType?.toLowerCase();
+  let ngoId;
+
+  if (userType === "ngo") {
+    ngoId = req.user._id;
+  } else if (userType === "branch_admin") {
+    ngoId = req.user.ngoId;
+  } else {
     throw new ApiError(403, "Access denied");
   }
 
@@ -15,8 +22,13 @@ export const updateInternshipSettings = asyncHandler(async (req, res) => {
     throw new ApiError(400, "allowLateSubmissions must be a boolean");
   }
 
+  // Build scoped query: branch admins can only access their branch + NGO-wide internships
+  const internshipQuery = userType === "ngo"
+    ? { _id: internshipId, createdBy: ngoId }
+    : { _id: internshipId, createdBy: ngoId, $or: [{ branchId: req.user._id }, { branchId: null }] };
+
   const internship = await Internship.findOneAndUpdate(
-    { _id: internshipId, createdBy: req.user._id },
+    internshipQuery,
     { $set: { allowLateSubmissions } },
     { new: true }
   );

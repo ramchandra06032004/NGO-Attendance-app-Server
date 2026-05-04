@@ -5,17 +5,27 @@ import generateAccessToken from "../utils/loginUtils/accessTokenGen.js";
 import generateRefreshToken from "../utils/loginUtils/refreshTokenGen.js";
 import { hashPasswordOnUpdate } from "../utils/loginUtils/hashOnUpdate.js";
 
-const ngoSchema = new mongoose.Schema(
+const branchSchema = new mongoose.Schema(
   {
+    ngoId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Ngo",
+      required: true,
+    },
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
-    password: {
+    location: {
       type: String,
       required: true,
+      trim: true,
+    },
+    adminName: {
+      type: String,
+      required: true,
+      trim: true,
     },
     email: {
       type: String,
@@ -28,31 +38,21 @@ const ngoSchema = new mongoose.Schema(
         "Please enter a valid email",
       ],
     },
-    mobile: {
-      type: String,
-      required: true,
-      trim: true,
-      match: [/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"],
-    },
-    profileImage:{
+    adminPhone: {
       type: String,
       trim: true,
-      required: true,
     },
-    address: {
+    password: {
       type: String,
       required: true,
-      trim: true,
     },
-    eventsId: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Event",
-      },
-    ],
     role: {
       type: String,
-      default: "ngo",
+      default: "branch_admin",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
     tokens: [
       {
@@ -62,34 +62,24 @@ const ngoSchema = new mongoose.Schema(
         createdAt: {
           type: Date,
           default: Date.now,
-          expires: "10d", // auto-expire after 10 days
+          expires: "10d",
         },
       },
     ],
-    registrationNumber: {
-      type: String,
-      unique: true,
-      sparse: true, // allows multiple documents with null values
-      trim: true,
-    },
-    is_hierarchical: {
-      type: Boolean,
-      default: false,
-    },
   },
   { timestamps: true }
 );
 
 // Add password hashing middleware
-ngoSchema.pre("save", hashPasswordHook);
+branchSchema.pre("save", hashPasswordHook);
 
-ngoSchema.pre("findOneAndUpdate", hashPasswordOnUpdate);
-ngoSchema.pre("updateOne", hashPasswordOnUpdate);
-ngoSchema.pre("updateMany", hashPasswordOnUpdate);
+branchSchema.pre("findOneAndUpdate", hashPasswordOnUpdate);
+branchSchema.pre("updateOne", hashPasswordOnUpdate);
+branchSchema.pre("updateMany", hashPasswordOnUpdate);
 
 // Add methods
-ngoSchema.methods.comparePassword = comparePassword;
-ngoSchema.methods.generateAccessToken = generateAccessToken;
-ngoSchema.methods.generateRefreshToken = generateRefreshToken;
+branchSchema.methods.comparePassword = comparePassword;
+branchSchema.methods.generateAccessToken = generateAccessToken;
+branchSchema.methods.generateRefreshToken = generateRefreshToken;
 
-export const Ngo = mongoose.model("Ngo", ngoSchema);
+export const Branch = mongoose.model("Branch", branchSchema);

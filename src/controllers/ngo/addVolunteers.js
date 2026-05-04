@@ -17,7 +17,7 @@ const validateStringField = (field, fieldName, index) => {
 };
 
 export const addVolunteers = asyncHandler(async (req, res) => {
-  if (req.user.userType !== "ngo") {
+  if (req.user.userType !== "ngo" && req.user.userType !== "branch_admin") {
     throw new ApiError(403, "Access denied: Only NGOs can add volunteers");
   }
 

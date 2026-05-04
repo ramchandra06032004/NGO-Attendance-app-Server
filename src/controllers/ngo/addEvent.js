@@ -6,8 +6,8 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export const addEvent = asyncHandler(async (req, res) => {
-  if (req.user.userType !== "ngo") {
-    throw new ApiError(403, "Access denied: Only NGOs can add events");
+  if (req.user.userType !== "ngo" && req.user.userType !== "branch_admin") {
+    throw new ApiError(403, "Access denied: Only NGOs or Branch Admins can add events");
   }
 
   const ngoUser = req.user;
@@ -59,11 +59,13 @@ export const addEvent = asyncHandler(async (req, res) => {
     endTime,
     spocName,
     spocContact,
-    createdBy: ngoUser._id,
+    createdBy: req.user.userType === "branch_admin" ? req.user.ngoId : req.user._id,
+    branchId: req.user.userType === "branch_admin" ? req.user._id : undefined,
   });
 
   // add event id to NGO's events array
-  await Ngo.findByIdAndUpdate(ngoUser._id, {
+  const ngoId = req.user.userType === "branch_admin" ? req.user.ngoId : req.user._id;
+  await Ngo.findByIdAndUpdate(ngoId, {
     $push: { eventsId: newEvent._id },
   });
 

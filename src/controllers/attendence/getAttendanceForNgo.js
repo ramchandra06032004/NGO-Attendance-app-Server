@@ -71,7 +71,7 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
   const ngoId = req.user._id;
 
   // Authorization check
-  if (req.user.userType !== "ngo") {
+  if (req.user.userType !== "ngo" && req.user.userType !== "branch_admin") {
     throw new ApiError(
       403,
       "Access denied: Only NGOs can access this endpoint"
@@ -87,7 +87,12 @@ export const getEventAttendanceForNGO = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Event not found");
   }
 
-  if (event.createdBy.toString() !== ngoId.toString()) {
+  const isBranchAdmin = req.user.userType === "branch_admin";
+  const isOwner = isBranchAdmin 
+    ? event.branchId?.toString() === req.user._id.toString()
+    : event.createdBy.toString() === req.user._id.toString();
+
+  if (!isOwner) {
     throw new ApiError(
       403,
       "You can only view attendance for events you created"

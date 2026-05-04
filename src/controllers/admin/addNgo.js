@@ -10,7 +10,7 @@ export const addNgo = asyncHandler(async (req, res) => {
   }
 
 
-  const { name, email, address, password, mobile, registrationNumber } =
+  const { name, email, address, password, mobile, registrationNumber, is_hierarchical } =
     req.body;
 
   // 1. Validate text fields
@@ -55,6 +55,7 @@ export const addNgo = asyncHandler(async (req, res) => {
     mobile,
     registrationNumber,
     profileImage: logoUrl,
+    is_hierarchical: is_hierarchical === 'true' || is_hierarchical === true,
   });
 
   return res
