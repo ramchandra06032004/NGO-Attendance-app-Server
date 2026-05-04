@@ -24,6 +24,12 @@ const studentSchema = new mongoose.Schema(
           ref: "Event",
           required: true,
         },
+        // attendanceDate: the specific calendar day this record belongs to (YYYY-MM-DD string).
+        // For single-day events or legacy records, this may be null/undefined.
+        attendanceDate: {
+          type: String, // stored as "YYYY-MM-DD" for simple comparison
+          default: null,
+        },
         attendanceMarkedAt: {
           type: Date,
           default: Date.now,
@@ -32,6 +38,10 @@ const studentSchema = new mongoose.Schema(
           ngoId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Ngo",
+          },
+          branchId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Branch",
           },
         },
       },

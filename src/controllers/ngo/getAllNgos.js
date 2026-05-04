@@ -9,7 +9,7 @@ export const getAllNgos = asyncHandler(async (req, res) => {
     if (!ngos) {
       throw new ApiError("No NGOs found", 404);
     }
-    res.status(200).json(new ApiResponse(ngos, "NGOs fetched successfully"));
+    res.status(200).json(new ApiResponse(200, ngos, "NGOs fetched successfully"));
   } catch (error) {
     throw new ApiError(error.message, error.statusCode || 500);
   }

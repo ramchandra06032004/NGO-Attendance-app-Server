@@ -5,27 +5,31 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
 export const removeEvent = asyncHandler(async (req, res) => {
-  if (req.user.userType !== "ngo")
+  if (req.user.userType !== "ngo" && req.user.userType !== "branch_admin")
     throw new ApiError(403, "Access denied: Only NGOs can remove an event");
 
-  const ngoUser = req.user;
-
   const { eventId } = req.body;
-  // event existence check
-  const eventExists = await Event.findById(eventId);
-  if (!eventExists) throw new ApiError(404, "Event not found");
+  const isBranchAdmin = req.user.userType === "branch_admin";
 
-  // event belongs to ngo check
-  if (!ngoUser.eventsId.includes(eventId))
-    throw new ApiError(
-      403,
-      "Event does not belong to this NGO, may be it was removed"
-    );
+  const query = isBranchAdmin 
+    ? { _id: eventId, branchId: req.user._id }
+    : { _id: eventId, createdBy: req.user._id };
+
+  const event = await Event.findOne(query);
+  if (!event) {
+    throw new ApiError(403, "Event not found or you don't have permission to remove this event");
+  }
+
+  // Determine the parent NGO ID to update their eventsId list
+  const ngoId = isBranchAdmin ? req.user.ngoId : req.user._id;
 
   // remove event from ngo Events array
-  await Ngo.findByIdAndUpdate(ngoUser._id, {
+  await Ngo.findByIdAndUpdate(ngoId, {
     $pull: { eventsId: eventId },
   });
+
+  // Also delete the event itself from the Event collection
+  await Event.findByIdAndDelete(eventId);
 
   res.status(200).json(new ApiResponse(200, [], "Event removed successfully"));
 });

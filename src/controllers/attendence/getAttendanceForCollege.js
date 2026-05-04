@@ -65,7 +65,7 @@ import { Student } from "../../models/student.js";
 import { College } from "../../models/college.js";
 
 export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
-  if (req.user.userType !== "college" && req.user.userType !== "ngo") {
+  if (req.user.userType !== "college" && req.user.userType !== "ngo" && req.user.userType !== "branch_admin") {
     throw new ApiError(
       403,
       "Access denied: Only colleges and NGOs can access this endpoint"
@@ -88,10 +88,8 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
   // Determine college ID based on user type
   let finalCollegeId;
   if (userType === "college") {
-    // For college users, use their own ID from req.user._id
     finalCollegeId = userId.toString();
-  } else if (userType === "ngo") {
-    // For NGO users, get college ID from route parameters
+  } else if (userType === "ngo" || userType === "branch_admin") {
     if (!collegeId) {
       throw new ApiError(400, "College ID is required for NGO users");
     }
@@ -102,6 +100,9 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
   } else {
     throw new ApiError(403, "Access denied: Invalid user type");
   }
+
+  // Optional: filter by a specific attendance date (YYYY-MM-DD)
+  const filterDate = req.query.date || null;
 
   // Get event with populated college data
   const event = await Event.findById(eventId).populate({
@@ -116,18 +117,19 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
   let attendanceData = [];
 
   if (finalCollegeId) {
-    // Find specific college in event data
-    const eventCollege = event.colleges.find(
-      (college) => college.collegeId._id.toString() === finalCollegeId
-    );
+    const eventCollege = event.colleges.find((college) => {
+      if (!college.collegeId) return false;
+      const idToCheck = college.collegeId._id
+        ? college.collegeId._id.toString()
+        : college.collegeId.toString();
+      return idToCheck === finalCollegeId;
+    });
 
     if (!eventCollege) {
-      // College exists but no attendance marked yet
       const college = await College.findById(finalCollegeId);
       if (!college) {
         throw new ApiError(404, "College not found");
       }
-
       attendanceData = [
         {
           _id: college._id,
@@ -137,18 +139,37 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
         },
       ];
     } else {
-      // OPTIMIZED: Get students directly using the pre-organized student IDs
       const students = await Student.find({
         _id: { $in: eventCollege.students },
       })
         .populate("classId", "className")
         .select("name prn department attendedEvents");
 
-      // Format student data with attendance info
       const studentData = students.map((student) => {
-        const eventAttendance = student.attendedEvents.find(
-          (att) => att.eventId.toString() === eventId
-        );
+        // Find ALL matching attendance records for this event
+        const matchingRecords = student.attendedEvents.filter((att) => {
+          if (att.eventId.toString() !== eventId) return false;
+          if (filterDate) {
+            if (att.attendanceDate === filterDate) return true;
+            // Legacy single-day fallback
+            if (!att.attendanceDate) {
+              const start = event.startDate ? new Date(event.startDate) : new Date(event.eventDate);
+              const end = event.endDate ? new Date(event.endDate) : start;
+              if (start.getTime() === end.getTime()) {
+                const yyyy = start.getUTCFullYear();
+                const mm = String(start.getUTCMonth() + 1).padStart(2, "0");
+                const dd = String(start.getUTCDate()).padStart(2, "0");
+                const evDateStr = `${yyyy}-${mm}-${dd}`;
+                if (evDateStr === filterDate) return true;
+              }
+            }
+            return false;
+          }
+          return true; // no date filter — return all records for this event
+        });
+
+        // Current status for the primary view (backward compatibility)
+        const principalRecord = matchingRecords[0] || null;
 
         return {
           studentId: student._id,
@@ -156,9 +177,12 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
           prn: student.prn,
           department: student.department || "N/A",
           className: student.classId?.className || "N/A",
-          attendanceMarkedAt: eventAttendance
-            ? eventAttendance.attendanceMarkedAt
-            : null,
+          attendanceDate: principalRecord?.attendanceDate || null,
+          attendanceMarkedAt: principalRecord?.attendanceMarkedAt || null,
+          attendanceRecords: matchingRecords.map(r => ({
+            attendanceDate: r.attendanceDate,
+            attendanceMarkedAt: r.attendanceMarkedAt
+          }))
         };
       });
 
@@ -167,7 +191,7 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
           _id: eventCollege.collegeId._id,
           collegeName: eventCollege.collegeId.name,
           students: studentData,
-          totalStudents: studentData.length,
+          totalStudents: studentData.filter((s) => s.attendanceMarkedAt).length,
         },
       ];
     }
@@ -182,6 +206,12 @@ export const getEventAttendanceForCollege = asyncHandler(async (req, res) => {
           location: event.location,
           aim: event.aim,
           eventDate: event.eventDate,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          startTime: event.startTime,
+          endTime: event.endTime,
+          spocName: event.spocName,
+          spocContact: event.spocContact,
           createdBy: event.createdBy,
         },
         attendance: attendanceData,

@@ -7,6 +7,9 @@ import {
   logout,
   refreshAccessToken,
 } from "../controllers/auth/index.js";
+import { Branch } from "../models/branch.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const router = Router();
 
@@ -21,5 +24,14 @@ router.route("/register/admin").post(conditionalAdminAuth, registerAdmin);
 
 // Protected routes - Logout (works for all user types)
 router.route("/logout").post(verifyJWT, logout);
+
+// Public route to get branches for a specific NGO (used in login screen)
+router.route("/ngo/:ngoId/branches").get(
+  asyncHandler(async (req, res) => {
+    const { ngoId } = req.params;
+    const branches = await Branch.find({ ngoId, isActive: true }).select("_id name location email");
+    res.status(200).json(new ApiResponse(200, branches, "Branches fetched successfully"));
+  })
+);
 
 export default router;

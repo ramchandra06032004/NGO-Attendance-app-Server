@@ -5,7 +5,7 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { Event } from "../../models/events.js";
 
 export const updateEvents = asyncHandler(async (req, res) => {
-  if (req.user.userType !== "ngo") {
+  if (req.user.userType !== "ngo" && req.user.userType !== "branch_admin") {
     throw new ApiError(403, "Access denied: Only NGOs can update events");
   }
   const ngoUser = req.user;
@@ -15,6 +15,12 @@ export const updateEvents = asyncHandler(async (req, res) => {
     description,
     images,
     eventDate,
+    startDate,
+    endDate,
+    startTime,
+    endTime,
+    spocName,
+    spocContact,
     collegeName,
     eventId,
   } = req.body;
@@ -35,6 +41,12 @@ export const updateEvents = asyncHandler(async (req, res) => {
     !description &&
     !images &&
     !eventDate &&
+    !startDate &&
+    !endDate &&
+    !startTime &&
+    !endTime &&
+    !spocName &&
+    !spocContact &&
     !collegeName
   ) {
     throw new ApiError(400, "At least one field is required to update");
@@ -45,7 +57,12 @@ export const updateEvents = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Event with this ID does not exist");
   }
 
-  const event = await Event.findOne({ _id: eventId, createdBy: ngoUser._id });
+  const isBranchAdmin = req.user.userType === "branch_admin";
+  const query = isBranchAdmin 
+    ? { _id: eventId, branchId: req.user._id }
+    : { _id: eventId, createdBy: req.user._id };
+
+  const event = await Event.findOne(query);
   if (!event) {
     throw new ApiError(
       403,
@@ -60,6 +77,12 @@ export const updateEvents = asyncHandler(async (req, res) => {
     description: description || event.description,
     images: images || event.images,
     eventDate: eventDate || event.eventDate,
+    startDate: startDate || event.startDate,
+    endDate: endDate || event.endDate,
+    startTime: startTime || event.startTime,
+    endTime: endTime || event.endTime,
+    spocName: spocName || event.spocName,
+    spocContact: spocContact || event.spocContact,
     collegeName: collegeName || event.collegeName,
   });
   await event.save();

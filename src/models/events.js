@@ -27,6 +27,32 @@ const eventSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
+    },
+    startTime: {
+      type: String, // Format: "HH:mm" or "HH:mm AM/PM"
+      required: true,
+    },
+    endTime: {
+      type: String, // Format: "HH:mm" or "HH:mm AM/PM"
+      required: true,
+    },
+    spocName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    spocContact: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     colleges: [
       {
         collegeId: {
@@ -47,6 +73,10 @@ const eventSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ngo",
       required: true,
+    },
+    branchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Branch",
     },
   },
   { timestamps: true }
